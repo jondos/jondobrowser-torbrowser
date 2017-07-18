@@ -274,12 +274,12 @@ nsAppFileLocationProvider::CloneMozBinDirectory(nsIFile** aLocalFile)
 // GetProductDirectory - Gets the directory which contains the application data folder
 //
 #ifdef TOR_BROWSER_DATA_OUTSIDE_APP_DIR
-// UNIX and WIN   : <App Folder>/../TorBrowser-Data/Browser
-// Mac            : <App Folder>/../../../TorBrowser-Data/Browser OR
-//                  ~/Library/Application Support/TorBrowser-Data/Browser
+// UNIX and WIN   : <App Folder>/../JonDoBrowser-Data/Browser
+// Mac            : <App Folder>/../../../JonDoBrowser-Data/Browser OR
+//                  ~/Library/Application Support/JonDoBrowser-Data/Browser
 #else
-// UNIX and WIN   : <App Folder>/TorBrowser/Data/Browser
-// Mac            : <App Folder>/../../TorBrowser/Data/Browser
+// UNIX and WIN   : <App Folder>/JonDoBrowser/Data/Browser
+// Mac            : <App Folder>/../../JonDoBrowser/Data/Browser
 #endif
 //----------------------------------------------------------------------------------------
 nsresult
@@ -300,7 +300,7 @@ nsAppFileLocationProvider::GetProductDirectory(nsIFile** aLocalFile,
   rv = directoryService->Get(XRE_EXECUTABLE_FILE, NS_GET_IID(nsIFile),
                              getter_AddRefs(exeFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = TorBrowser_GetUserDataDir(exeFile, getter_AddRefs(localDir));
+  rv = JonDoBrowser_GetUserDataDir(exeFile, getter_AddRefs(localDir));
   NS_ENSURE_SUCCESS(rv, rv);
 
 #ifdef TOR_BROWSER_DATA_OUTSIDE_APP_DIR

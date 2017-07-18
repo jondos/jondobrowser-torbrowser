@@ -10,7 +10,7 @@
 
 # TODO When TOR_BROWSER_DATA_OUTSIDE_APP_DIR is used on all platforms,
 # we should remove all lines in this file that contain:
-#      TorBrowser/Data
+#      JonDoBrowser/Data
 
 # -----------------------------------------------------------------------------
 QUIET=0
@@ -171,10 +171,10 @@ append_remove_instructions() {
 
 # List all files in the current directory, stripping leading "./"
 # Pass a variable name and it will be filled as an array.
-# To support Tor Browser updates, skip the following files:
-#    TorBrowser/Data/Browser/profiles.ini
-#    TorBrowser/Data/Browser/profile.default/bookmarks.html
-#    TorBrowser/Data/Tor/torrc
+# To support JonDoBrowser updates, skip the following files:
+#    JonDoBrowser/Data/Browser/profiles.ini
+#    JonDoBrowser/Data/Browser/profile.default/bookmarks.html
+#    JonDoBrowser/Data/Tor/torrc
 list_files() {
   count=0
 
@@ -187,9 +187,9 @@ list_files() {
     | sed 's/\.\/\(.*\)/\1/' \
     | sort -r > "temp-filelist"
   while read file; do
-    if [ "$file" = "TorBrowser/Data/Browser/profiles.ini" -o                   \
-         "$file" = "TorBrowser/Data/Browser/profile.default/bookmarks.html" -o \
-         "$file" = "TorBrowser/Data/Tor/torrc" ]; then
+    if [ "$file" = "JonDoBrowser/Data/Browser/profiles.ini" -o                   \
+         "$file" = "JonDoBrowser/Data/Browser/profile.default/bookmarks.html" -o \
+         "$file" = "JonDoBrowser/Data/Tor/torrc" ]; then
       continue;
     fi
     eval "${1}[$count]=\"$file\""

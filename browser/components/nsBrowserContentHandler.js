@@ -98,7 +98,7 @@ const OVERRIDE_NEW_BUILD_ID = 3;
  * Returns:
  *  OVERRIDE_NEW_PROFILE if this is the first run with a new profile.
  *  OVERRIDE_NEW_MSTONE if this is the first run with a build with a different
- *                      Gecko milestone or Tor Browser version (i.e. right
+ *                      Gecko milestone or JonDoBrowser version (i.e. right
  *                      after an upgrade).
  *  OVERRIDE_NEW_BUILD_ID if this is the first run with a new build ID of the
  *                        same Gecko milestone (i.e. after a nightly upgrade).
@@ -144,7 +144,7 @@ function needHomepageOverride(prefb) {
 #ifdef TOR_BROWSER_VERSION
     prefb.setCharPref(kTBSavedVersionPref, TOR_BROWSER_VERSION);
 
-    // After an upgrade from an older release of Tor Browser (<= 5.5a1), the
+    // After an upgrade from an older release of JonDoBrowser (<= 5.5a1), the
     // savedmstone will be undefined because those releases included the
     // value "ignore" for the browser.startup.homepage_override.mstone pref.
     // To correctly detect an upgrade vs. a new profile, we check for the
@@ -530,7 +530,7 @@ nsBrowserContentHandler.prototype = {
       } catch (ex) {}
 
 #ifdef TOR_BROWSER_VERSION
-      // We do the same for the Tor Browser version.
+      // We do the same for the JonDoBrowser version.
       var old_tbversion = null;
       try {
         old_tbversion = prefb.getCharPref(kTBSavedVersionPref);
@@ -554,7 +554,7 @@ nsBrowserContentHandler.prototype = {
             // to be read. If a crash occurs after updating, before restarting,
             // we may open the startPage in addition to restoring the session.
             //
-            // Tor Browser: Instead of opening the post-update "override page"
+            // JonDoBrowser: Instead of opening the post-update "override page"
             // directly, an about:tbupdate page is opened that includes a link
             // to the override page as well as text from the first part of the
             // local ChangeLog.txt file. The override page URL comes from the

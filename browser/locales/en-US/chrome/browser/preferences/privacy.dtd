@@ -19,7 +19,7 @@
 <!ENTITY trackingProtectionPBMLearnMore.label "Learn more">
 <!ENTITY firstpartyIsolate.label "Restrict third party cookies and other tracking data">
 <!ENTITY firstpartyIsolate.accesskey "R">
-<!ENTITY resistFingerprinting.label "Change details that distinguish you from other Tor Browser users">
+<!ENTITY resistFingerprinting.label "Change details that distinguish you from other JonDoBrowser users">
 <!ENTITY resistFingerprinting.accesskey "F">
 <!ENTITY changeBlockList.label          "Change Block List">
 <!ENTITY changeBlockList.accesskey      "C">

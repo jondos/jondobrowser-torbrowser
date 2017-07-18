@@ -274,7 +274,7 @@ nsHttpNTLMAuth::ChallengeReceived(nsIHttpAuthenticableChannel *channel,
 
     *identityInvalid = false;
 
-    /* Always fail Negotiate auth for Tor Browser. We don't need it. */
+    /* Always fail Negotiate auth for JonDoBrowser. We don't need it. */
     return NS_ERROR_ABORT;
 
     // Start a new auth sequence if the challenge is exactly "NTLM".

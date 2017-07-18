@@ -746,7 +746,7 @@ function isUsableAddon(aAddon) {
     return true;
 
   // Ensure that we allow torbutton, tor-launcher, and https-everywhere
-  if (aAddon.id == "torbutton@torproject.org" ||
+  if (aAddon.id== "torbutton@torproject.org" || aAddon.id == "info@jondos.de" || aAddon.id == "jondo-launcher@jondos.de" || aAddon.id == "jondoswitcher@jondos.de" ||
       aAddon.id == "tor-launcher@torproject.org" ||
       aAddon.id == "https-everywhere-eff@eff.org" ||
       aAddon.id == "meek-http-helper@bamsoftware.com") {
@@ -3461,7 +3461,7 @@ this.XPIProvider = {
         // Make sure Torbutton, TorLauncher, EFF's HTTPS-Everywhere and meek
         // are still working after an update.
         if (mustSign(addon.type) &&
-            addon.id != "torbutton@torproject.org" &&
+            addon.id!= "torbutton@torproject.org" && addon.id != "info@jondos.de" && addon.id != "jondo-launcher@jondos.de" && addon.id != "jondoswitcher@jondos.de" &&
             addon.id != "tor-launcher@torproject.org" &&
             addon.id != "https-everywhere-eff@eff.org" &&
             addon.id != "meek-http-helper@bamsoftware.com" &&

@@ -380,7 +380,7 @@ function areDirectoryEntriesWriteable(aDir) {
 function getElevationRequired() {
 #if defined(TOR_BROWSER_UPDATE)
   // To avoid potential security holes associated with running the updater
-  // process with elevated privileges, Tor Browser does not support elevation.
+  // process with elevated privileges, JonDoBrowser does not support elevation.
   return false;
 #else
   if (AppConstants.platform != "macosx") {
@@ -1969,7 +1969,7 @@ UpdateService.prototype = {
    */
   _postUpdateProcessing: function AUS__postUpdateProcessing() {
 #if defined(TOR_BROWSER_UPDATE) && !defined(XP_MACOSX)
-    this._removeOrphanedTorBrowserFiles();
+    this._removeOrphanedJonDoBrowserFiles();
 #endif
 
     if (!this.canCheckForUpdates) {
@@ -2162,18 +2162,18 @@ UpdateService.prototype = {
 
 #if defined(TOR_BROWSER_UPDATE) && !defined(XP_MACOSX)
   /**
-   * When updating from an earlier version to Tor Browser 6.0 or later, old
+   * When updating from an earlier version to JonDoBrowser 6.0 or later, old
    * update info files are left behind on Linux and Windows. Remove them.
    */
-  _removeOrphanedTorBrowserFiles: function AUS__removeOrphanedTorBrowserFiles() {
+  _removeOrphanedJonDoBrowserFiles: function AUS__removeOrphanedJonDoBrowserFiles() {
     try {
       let oldUpdateInfoDir = getAppBaseDir();  // aka the Browser directory.
 
 #ifdef XP_WIN
       // On Windows, the updater files were stored under
-      // Browser/TorBrowser/Data/Browser/Caches/firefox/
+      // Browser/JonDoBrowser/Data/Browser/Caches/firefox/
       oldUpdateInfoDir.appendRelativePath(
-                                "TorBrowser\\Data\\Browser\\Caches\\firefox");
+                                "JonDoBrowser\\Data\\Browser\\Caches\\firefox");
 #endif
 
       // Remove the updates directory.
@@ -2778,8 +2778,8 @@ UpdateService.prototype = {
       LOG("UpdateService:downloadUpdate - canceling download of update since " +
           "it is for an earlier or same application version and build ID.\n" +
 #ifdef TOR_BROWSER_UPDATE
-          "current Tor Browser version: " + compatVersion + "\n" +
-          "update Tor Browser version : " + update.appVersion + "\n" +
+          "current JonDoBrowser version: " + compatVersion + "\n" +
+          "update JonDoBrowser version : " + update.appVersion + "\n" +
 #else
           "current application version: " + compatVersion + "\n" +
           "update application version : " + update.appVersion + "\n" +

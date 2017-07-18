@@ -402,7 +402,7 @@ static nsresult
 GetUpdateDirFromAppDir(nsIFile *aAppDir, nsIFile* *aResult)
 {
   // On Mac OSX, we stage the update to an Updated.app directory that is
-  // directly below the main Tor Browser.app directory (two levels up from
+  // directly below the main JonDoBrowser.app directory (two levels up from
   // the appDir).
   NS_ENSURE_ARG_POINTER(aAppDir);
   NS_ENSURE_ARG_POINTER(aResult);
@@ -1367,7 +1367,7 @@ nsUpdateProcessor::ProcessUpdate(nsIUpdate* aUpdate)
                  getter_AddRefs(updRoot));
     NS_ASSERTION(NS_SUCCEEDED(rv), "Can't get the UpdRootD dir");
 
-    // To support Tor Browser updates from xpcshell, modify the following
+    // To support JonDoBrowser updates from xpcshell, modify the following
     // code to use TOR_BROWSER_VERSION from the configure process.
     nsCOMPtr<nsIXULAppInfo> appInfo =
       do_GetService("@mozilla.org/xre/app-info;1");

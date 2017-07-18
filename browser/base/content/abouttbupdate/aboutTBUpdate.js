@@ -1,4 +1,4 @@
-// Copyright (c) 2015, The Tor Project, Inc.
+// Copyright (c) 2015, The JonDos GmbH, Inc.
 // See LICENSE for licensing information.
 //
 // vim: set sw=2 sts=2 ts=8 et syntax=javascript:

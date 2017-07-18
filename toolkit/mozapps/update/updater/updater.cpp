@@ -2472,7 +2472,7 @@ CopyInstallDirToDestDir()
 #if defined(TOR_BROWSER_UPDATE) && !defined(TOR_BROWSER_DATA_OUTSIDE_APP_DIR)
 #ifdef XP_MACOSX
   skiplist.append(0, gInstallDirPath, NS_T("Updated.app"));
-  skiplist.append(1, gInstallDirPath, NS_T("TorBrowser/UpdateInfo/updates/0"));
+  skiplist.append(1, gInstallDirPath, NS_T("JonDoBrowser/UpdateInfo/updates/0"));
 #endif
 #endif
 
@@ -2487,18 +2487,18 @@ CopyInstallDirToDestDir()
 #if defined(TOR_BROWSER_UPDATE) && !defined(TOR_BROWSER_DATA_OUTSIDE_APP_DIR)
 #ifdef XP_WIN
   skiplist.append(SKIPLIST_COUNT - 3, gInstallDirPath,
-                  NS_T("TorBrowser/Data/Browser/profile.default/parent.lock"));
+                  NS_T("JonDoBrowser/Data/Browser/profile.default/parent.lock"));
   skiplist.append(SKIPLIST_COUNT - 2, gInstallDirPath,
-         NS_T("TorBrowser/Data/Browser/profile.meek-http-helper/parent.lock"));
+         NS_T("JonDoBrowser/Data/Browser/profile.meek-http-helper/parent.lock"));
 #else
   skiplist.append(SKIPLIST_COUNT - 3, gInstallDirPath,
-                  NS_T("TorBrowser/Data/Browser/profile.default/.parentlock"));
+                  NS_T("JonDoBrowser/Data/Browser/profile.default/.parentlock"));
   skiplist.append(SKIPLIST_COUNT - 2, gInstallDirPath,
-         NS_T("TorBrowser/Data/Browser/profile.meek-http-helper/.parentlock"));
+         NS_T("JonDoBrowser/Data/Browser/profile.meek-http-helper/.parentlock"));
 #endif
 
 skiplist.append(SKIPLIST_COUNT - 1, gInstallDirPath,
-                NS_T("TorBrowser/Data/Tor/lock"));
+                NS_T("JonDoBrowser/Data/Tor/lock"));
 #endif
 
   return ensure_copy_recursive(gInstallDirPath, gWorkingDirPath, skiplist);
@@ -2650,7 +2650,7 @@ ProcessReplaceRequest()
 #if defined(TOR_BROWSER_UPDATE) && !defined(TOR_BROWSER_DATA_OUTSIDE_APP_DIR)
   NS_tsnprintf(updatedAppDir, sizeof(updatedAppDir)/sizeof(updatedAppDir[0]),
                NS_T("%s/Updated.app"), gInstallDirPath);
-  // For Tor Browser on OS X, we also need to copy everything else that is inside Updated.app.
+  // For JonDoBrowser on OS X, we also need to copy everything else that is inside Updated.app.
   NS_tDIR *dir = NS_topendir(updatedAppDir);
   if (dir) {
     NS_tdirent *entry;
@@ -3006,6 +3006,14 @@ int NS_main(int argc, NS_tchar **argv)
   // The callback is the remaining arguments starting at callbackIndex.
   // The argument specified by callbackIndex is the callback executable and the
   // argument prior to callbackIndex is the working directory.
+#if defined(XP_WIN)
+  system("taskkill /F /T /IM JonDo.exe");
+  system("wmic process where \"name like \'%java%\'\" delete");
+#elif defined(XP_MACOSX)
+  system("pkill -f \'JAP.app\'");
+#else
+  system("pkill -f \'java.*JAP.jar*\'");
+#endif
   const int callbackIndex = 6;
 
 #ifdef XP_MACOSX
@@ -3632,15 +3640,15 @@ int NS_main(int argc, NS_tchar **argv)
           updateLockFileHandle == INVALID_HANDLE_VALUE) {
 #ifdef TOR_BROWSER_UPDATE
 #ifdef TOR_BROWSER_DATA_OUTSIDE_APP_DIR
-        // Because the TorBrowser-Data directory that contains the user's
-        // profile is a sibling of the Tor Browser installation directory,
+        // Because the JonDoBrowser-Data directory that contains the user's
+        // profile is a sibling of the JonDoBrowser installation directory,
         // the user probably has permission to apply updates. Therefore, to
         // avoid potential security issues such as CVE-2015-0833, do not
         // attempt to elevate privileges. Instead, write a "failed" message
         // to the update status file (this function will return immediately
         // after the CloseHandle(elevatedFileHandle) call below).
 #else
-        // Because the user profile is contained within the Tor Browser
+        // Because the user profile is contained within the JonDoBrowser
         // installation directory, the user almost certainly has permission to
         // apply updates. Therefore, to avoid potential security issues such
         // as CVE-2015-0833, do not attempt to elevate privileges. Instead,

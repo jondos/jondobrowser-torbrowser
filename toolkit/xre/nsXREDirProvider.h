@@ -99,10 +99,10 @@ public:
   nsresult GetProfileDir(nsIFile* *aResult);
 
   /**
-   * Get the TorBrowser user data directory by calling the
-   * TorBrowser_GetUserDataDir() utility function.
+   * Get the JonDoBrowser user data directory by calling the
+   * JonDoBrowser_GetUserDataDir() utility function.
    */
-  nsresult GetTorBrowserUserDataDir(nsIFile* *aFile);
+  nsresult GetJonDoBrowserUserDataDir(nsIFile* *aFile);
 
 protected:
   nsresult GetFilesInternal(const char* aProperty, nsISimpleEnumerator** aResult);

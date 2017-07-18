@@ -1372,17 +1372,17 @@ nsXREDirProvider::GetUpdateRootDir(nsIFile* *aResult)
   NS_ENSURE_SUCCESS(rv, rv);
 
 #elif defined(TOR_BROWSER_UPDATE)
-  // For Tor Browser, we store update history, etc. within the UpdateInfo
+  // For JonDoBrowser, we store update history, etc. within the UpdateInfo
   // directory under the user data directory.
-  nsresult rv = GetTorBrowserUserDataDir(getter_AddRefs(updRoot));
+  nsresult rv = GetJonDoBrowserUserDataDir(getter_AddRefs(updRoot));
   NS_ENSURE_SUCCESS(rv, rv);
   rv = updRoot->AppendNative(NS_LITERAL_CSTRING("UpdateInfo"));
   NS_ENSURE_SUCCESS(rv, rv);
 #if defined(XP_MACOSX) && defined(TOR_BROWSER_DATA_OUTSIDE_APP_DIR)
-  // Since the TorBrowser-Data directory may be shared among different
+  // Since the JonDoBrowser-Data directory may be shared among different
   // installations of the application, embed the app path in the update dir
   // so that the update history is partitioned. This is much less likely to
-  // be an issue on Linux or Windows because the Tor Browser packages for
+  // be an issue on Linux or Windows because the JonDoBrowser packages for
   // those platforms include a "container" folder that provides partitioning
   // by default, and we do not support use of a shared, OS-recommended area
   // for user data on those platforms.
@@ -1589,7 +1589,7 @@ nsXREDirProvider::GetUserDataDirectoryHome(nsIFile** aFile, bool aLocal)
   // Copied from nsAppFileLocationProvider (more or less)
   NS_ENSURE_ARG_POINTER(aFile);
   nsCOMPtr<nsIFile> localDir;
-  nsresult rv = GetTorBrowserUserDataDir(getter_AddRefs(localDir));
+  nsresult rv = GetJonDoBrowserUserDataDir(getter_AddRefs(localDir));
   NS_ENSURE_SUCCESS(rv, rv);
 
 #if !defined(ANDROID)
@@ -1680,14 +1680,14 @@ nsXREDirProvider::GetUserDataDirectory(nsIFile** aFile, bool aLocal,
 }
 
 nsresult
-nsXREDirProvider::GetTorBrowserUserDataDir(nsIFile* *aFile)
+nsXREDirProvider::GetJonDoBrowserUserDataDir(nsIFile* *aFile)
 {
   NS_ENSURE_ARG_POINTER(aFile);
   nsCOMPtr<nsIFile> exeFile;
   bool per = false;
   nsresult rv = GetFile(XRE_EXECUTABLE_FILE, &per, getter_AddRefs(exeFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  return TorBrowser_GetUserDataDir(exeFile, aFile);
+  return JonDoBrowser_GetUserDataDir(exeFile, aFile);
 }
 
 nsresult

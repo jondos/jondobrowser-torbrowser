@@ -76,7 +76,7 @@ check_for_forced_update() {
 # TODO When TOR_BROWSER_DATA_OUTSIDE_APP_DIR is used on all platforms,
 # we should remove the following lines:
     # If the file in the skip list ends with /*, do a prefix match.
-    # This allows TorBrowser/Data/Browser/profile.default/extensions/https-everywhere-eff@eff.org/*
+    # This allows JonDoBrowser/Data/Browser/profile.default/extensions/https-everywhere-eff@eff.org/*
     # to be used to force all HTTPS Everywhere files to be updated.
     f_suffix=${f##*/}
     if [[ $f_suffix = "*" ]]; then
@@ -98,7 +98,7 @@ if [ $# = 0 ]; then
 fi
 
 # Firefox uses requested_forced_updates='Contents/MacOS/firefox' due to
-# 770996 but in Tor Browser we do not need that fix.
+# 770996 but in JonDoBrowser we do not need that fix.
 requested_forced_updates=""
 directories_to_remove=""
 extra_files_to_remove=""
@@ -140,7 +140,7 @@ archivefiles="updatev2.manifest updatev3.manifest"
 # we should remove the following lines:
 # If the NoScript or HTTPS Everywhere extensions have changed between
 # releases, add them to the "force updates" list.
-ext_path='TorBrowser/Data/Browser/profile.default/extensions'
+ext_path='JonDoBrowser/Data/Browser/profile.default/extensions'
 if [ -d "$newdir/$ext_path" ]; then
   https_everywhere_dir='https-everywhere-eff@eff.org'
   https_everywhere_xpi='https-everywhere-eff@eff.org.xpi'

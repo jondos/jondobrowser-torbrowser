@@ -1882,7 +1882,20 @@ GetOverrideStringBundle(nsIStringBundleService* aSBS, nsIStringBundle* *aResult)
     return;
   }
 
-  uriString.Append("extensions/torbutton@torproject.org.xpi");
+bool isTor = false;
+#ifdef XP_WIN
+    WCHAR envValue[10];
+    int envValueLength = GetEnvironmentVariableW(L"JONDO_NETWORK", envValue, 10);
+ 	  if (envValueLength > 0 && lstrcmpW(envValue, L"tor") == 0) isTor = true;
+#else
+	  const char *envValue = PR_GetEnv("JONDO_NETWORK");
+	  if(envValue != NULL && strcmp(envValue, "tor") == 0) isTor = true;
+#endif
+if(isTor)	{
+    uriString.Append("extensions/torbutton@torproject.org.xpi");
+} else {
+    uriString.Append("extensions/info@jondos.de.xpi");
+}
 #else
   // Build Torbutton file URI string by starting from the profiles directory.
   bool persistent = false; // ignored
@@ -1900,7 +1913,20 @@ GetOverrideStringBundle(nsIStringBundleService* aSBS, nsIStringBundle* *aResult)
     return;
   }
 
-  uriString.Append("profile.default/extensions/torbutton@torproject.org.xpi");
+bool isTor = false;
+#ifdef XP_WIN
+    WCHAR envValue[10];
+    int envValueLength = GetEnvironmentVariableW(L"JONDO_NETWORK", envValue, 10);
+ 	  if (envValueLength > 0 && lstrcmpW(envValue, L"tor") == 0) isTor = true;
+#else
+	  const char *envValue = PR_GetEnv("JONDO_NETWORK");
+	  if(envValue != NULL && strcmp(envValue, "tor") == 0) isTor = true;
+#endif
+if(isTor)	{
+    uriString.Append("profile.default/extensions/torbutton@torproject.org.xpi");
+} else {
+    uriString.Append("profile.default/extensions/info@jondos.de.xpi");
+}
 #endif
 
   nsCString userAgentLocale;
@@ -2370,7 +2396,7 @@ static ProfileStatus CheckProfileWriteAccess(nsIToolkitProfile* aProfile)
 }
 
 #ifdef TOR_BROWSER_DATA_OUTSIDE_APP_DIR
-// Obtain an nsIFile for the app root directory, e.g., TorBrowser.app on
+// Obtain an nsIFile for the app root directory, e.g., JonDoBrowser.app on
 // Mac OS and the directory that contains Browser/ on Linux and Windows.
 static nsresult GetAppRootDir(nsIFile *aAppDir, nsIFile **aAppRootDir)
 {
@@ -2386,16 +2412,16 @@ static nsresult GetAppRootDir(nsIFile *aAppDir, nsIFile **aAppRootDir)
 #endif
 }
 
-static ProfileStatus CheckTorBrowserDataWriteAccess(nsIFile *aAppDir)
+static ProfileStatus CheckJonDoBrowserDataWriteAccess(nsIFile *aAppDir)
 {
   // Check whether we can write to the directory that will contain
-  // TorBrowser-Data.
+  // JonDoBrowser-Data.
   nsCOMPtr<nsIFile> tbDataDir;
   nsXREDirProvider* dirProvider = nsXREDirProvider::GetSingleton();
   if (!dirProvider)
     return PROFILE_STATUS_OTHER_ERROR;
   nsresult rv =
-              dirProvider->GetTorBrowserUserDataDir(getter_AddRefs(tbDataDir));
+              dirProvider->GetJonDoBrowserUserDataDir(getter_AddRefs(tbDataDir));
   NS_ENSURE_SUCCESS(rv, PROFILE_STATUS_OTHER_ERROR);
   nsCOMPtr<nsIFile> tbDataDirParent;
   rv = tbDataDir->GetParent(getter_AddRefs(tbDataDirParent));
@@ -2411,7 +2437,7 @@ static ProfileStatus CheckTorBrowserDataWriteAccess(nsIFile *aAppDir)
 // source directory has been moved (if the move fails for some reason, the
 // original contents of the destination directory are restored).
 static nsresult
-migrateOneTorBrowserDataDir(nsIFile *aSrcParentDir,
+migrateOneJonDoBrowserDataDir(nsIFile *aSrcParentDir,
                             const nsACString &aSrcRelativePath,
                             nsIFile *aDestParentDir,
                             const nsACString &aDestRelativePath)
@@ -2453,10 +2479,10 @@ migrateOneTorBrowserDataDir(nsIFile *aSrcParentDir,
   nsCOMPtr<nsIFile> tmpDir;
   if (destDirExists) {
     // The destination directory exists. When we are migrating an old
-    // Tor Browser profile, we expect this to be the case because we first
+    // JonDoBrowser profile, we expect this to be the case because we first
     // allow the standard Mozilla startup code to create a new profile as
     // usual, and then later (here) we set aside that profile directory and
-    // replace it with the old Tor Browser profile that we need to migrate.
+    // replace it with the old JonDoBrowser profile that we need to migrate.
     // For now, move the Mozilla profile directory aside and set tmpDir to
     // point to its new, temporary location in case migration fails and we
     // need to restore the profile that was created by the Mozilla code.
@@ -2508,11 +2534,11 @@ deleteFile(nsIFile *aParentDir, const nsACString &aRelativePath)
 // When this function is called, aProfile is a brand new profile and
 // aAppDir is the directory that contains the firefox executable.
 // Our strategy is to check if an old "in application" profile exists at
-// <AppRootDir>/TorBrowser/Data/Browser/profile.default. If so, we set
+// <AppRootDir>/JonDoBrowser/Data/Browser/profile.default. If so, we set
 // aside the new profile directory and replace it with the old one.
 // We use a similar approach for the Tor data and UpdateInfo directories.
 static nsresult
-migrateInAppTorBrowserProfile(nsIToolkitProfile *aProfile, nsIFile *aAppDir)
+migrateInAppJonDoBrowserProfile(nsIToolkitProfile *aProfile, nsIFile *aAppDir)
 {
   NS_ENSURE_ARG_POINTER(aProfile);
   NS_ENSURE_ARG_POINTER(aAppDir);
@@ -2521,20 +2547,20 @@ migrateInAppTorBrowserProfile(nsIToolkitProfile *aProfile, nsIFile *aAppDir)
   nsresult rv = GetAppRootDir(aAppDir, getter_AddRefs(appRootDir));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Create an nsIFile for the old <AppRootDir>/TorBrowser directory.
-  nsCOMPtr<nsIFile> oldTorBrowserDir;
-  rv = appRootDir->Clone(getter_AddRefs(oldTorBrowserDir));
+  // Create an nsIFile for the old <AppRootDir>/JonDoBrowser directory.
+  nsCOMPtr<nsIFile> oldJonDoBrowserDir;
+  rv = appRootDir->Clone(getter_AddRefs(oldJonDoBrowserDir));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = oldTorBrowserDir->AppendRelativeNativePath(
-                                        NS_LITERAL_CSTRING("TorBrowser"));
+  rv = oldJonDoBrowserDir->AppendRelativeNativePath(
+                                        NS_LITERAL_CSTRING("JonDoBrowser"));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Get an nsIFile for the TorBrowser-Data directory.
+  // Get an nsIFile for the JonDoBrowser-Data directory.
   nsCOMPtr<nsIFile> newTBDataDir;
   nsXREDirProvider* dirProvider = nsXREDirProvider::GetSingleton();
   if (!dirProvider)
     return NS_ERROR_UNEXPECTED;
-  rv = dirProvider->GetTorBrowserUserDataDir(getter_AddRefs(newTBDataDir));
+  rv = dirProvider->GetJonDoBrowserUserDataDir(getter_AddRefs(newTBDataDir));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Try to migrate the browser profile. If this fails, we return an error
@@ -2544,20 +2570,20 @@ migrateInAppTorBrowserProfile(nsIToolkitProfile *aProfile, nsIFile *aAppDir)
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoCString path(NS_LITERAL_CSTRING("Data" XPCOM_FILE_PATH_SEPARATOR
                     "Browser" XPCOM_FILE_PATH_SEPARATOR "profile.default"));
-  rv = migrateOneTorBrowserDataDir(oldTorBrowserDir, path,
+  rv = migrateOneJonDoBrowserDataDir(oldJonDoBrowserDir, path,
                                    newProfileDir, NS_LITERAL_CSTRING(""));
   NS_ENSURE_SUCCESS(rv, rv);  // Return immediately upon failure.
 
   // Try to migrate the Tor data directory but do not return upon failure.
   nsAutoCString torDataDirPath(NS_LITERAL_CSTRING("Data"
                                         XPCOM_FILE_PATH_SEPARATOR "Tor"));
-  rv = migrateOneTorBrowserDataDir(oldTorBrowserDir, torDataDirPath,
+  rv = migrateOneJonDoBrowserDataDir(oldJonDoBrowserDir, torDataDirPath,
                                    newTBDataDir, NS_LITERAL_CSTRING("Tor"));
   if (NS_SUCCEEDED(rv)) {
     // Make a "best effort" attempt to remove the Tor data files that should
     // no longer be stored in the Tor user data directory (they have been
     // relocated to a read-only Tor directory, e.g.,
-    // TorBrowser.app/Contents/Resources/TorBrowser/Tor.
+    // JonDoBrowser.app/Contents/Resources/JonDoBrowser/Tor.
     deleteFile(newTBDataDir,
          NS_LITERAL_CSTRING("Tor" XPCOM_FILE_PATH_SEPARATOR "geoip"));
     deleteFile(newTBDataDir,
@@ -2572,14 +2598,14 @@ migrateInAppTorBrowserProfile(nsIToolkitProfile *aProfile, nsIFile *aAppDir)
                                             getter_AddRefs(newUpdateInfoDir));
   if (NS_SUCCEEDED(rv2)) {
     nsAutoCString updateInfoPath(NS_LITERAL_CSTRING("UpdateInfo"));
-    rv2 = migrateOneTorBrowserDataDir(oldTorBrowserDir, updateInfoPath,
+    rv2 = migrateOneJonDoBrowserDataDir(oldJonDoBrowserDir, updateInfoPath,
                                       newUpdateInfoDir, NS_LITERAL_CSTRING(""));
   }
 
-  // If all pieces of the migration succeeded, remove the old TorBrowser
+  // If all pieces of the migration succeeded, remove the old JonDoBrowser
   // directory.
   if (NS_SUCCEEDED(rv) && NS_SUCCEEDED(rv2)) {
-    oldTorBrowserDir->Remove(true);
+    oldJonDoBrowserDir->Remove(true);
   }
 
   return NS_OK;
@@ -2658,7 +2684,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     nsresult rv = GetAppRootDir(aAppDir, getter_AddRefs(oldTorProfileDir));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = oldTorProfileDir->AppendRelativeNativePath(
-                     NS_LITERAL_CSTRING("TorBrowser" XPCOM_FILE_PATH_SEPARATOR
+                     NS_LITERAL_CSTRING("JonDoBrowser" XPCOM_FILE_PATH_SEPARATOR
                      "Data" XPCOM_FILE_PATH_SEPARATOR
                      "Browser" XPCOM_FILE_PATH_SEPARATOR "profile.default"));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2931,9 +2957,9 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
 #endif
       aProfileSvc->Flush();
 #ifdef TOR_BROWSER_DATA_OUTSIDE_APP_DIR
-      // Handle migration from an older version of Tor Browser in which the
+      // Handle migration from an older version of JonDoBrowser in which the
       // user data was stored inside the application directory.
-      rv = migrateInAppTorBrowserProfile(profile, aAppDir);
+      rv = migrateInAppJonDoBrowserProfile(profile, aAppDir);
       if (!NS_SUCCEEDED(rv)) {
         // Display an error alert and continue startup. Since XPCOM was
         // initialized in a limited way inside ProfileErrorDialog() and
@@ -3961,7 +3987,7 @@ XREMain::XRE_mainInit(bool* aExitFlag)
                                                    NS_LITERAL_CSTRING("0"));
 #endif
 
-  // In Tor Browser, remoting is disabled by default unless -osint is used.
+  // In JonDoBrowser, remoting is disabled by default unless -osint is used.
   bool allowRemote = (CheckArg("allow-remote") == ARG_FOUND);
   if (!allowRemote && (CheckArg("osint", false, nullptr, false) != ARG_FOUND)) {
     SaveToEnv("MOZ_NO_REMOTE=1");
@@ -4494,10 +4520,10 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
 #ifdef TOR_BROWSER_DATA_OUTSIDE_APP_DIR
   if (NS_FAILED(rv)) {
     // NS_NewToolkitProfileService() returns a generic NS_ERROR_FAILURE error
-    // if creation of the TorBrowser-Data directory fails due to access denied
+    // if creation of the JonDoBrowser-Data directory fails due to access denied
     // or because of a read-only disk volume. Do an extra check here to detect
     // these errors so we can display an informative error message.
-    ProfileStatus status = CheckTorBrowserDataWriteAccess(exeDir);
+    ProfileStatus status = CheckJonDoBrowserDataWriteAccess(exeDir);
     if ((PROFILE_STATUS_ACCESS_DENIED == status) ||
         (PROFILE_STATUS_READ_ONLY == status)) {
       ProfileErrorDialog(nullptr, nullptr, status, nullptr, mNativeApp,

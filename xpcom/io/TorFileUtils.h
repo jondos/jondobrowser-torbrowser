@@ -12,24 +12,24 @@
 class nsIFile;
 
 /**
- * TorBrowser_GetUserDataDir
+ * JonDoBrowser_GetUserDataDir
  *
- * Retrieve the Tor Browser user data directory.
+ * Retrieve the JonDoBrowser user data directory.
  * When built with --enable-tor-browser-data-outside-app-dir, the directory
  * is next to the application directory, except on Mac OS where it may be
- * there or it may be at ~/Library/Application Support/TorBrowser-Data (the
+ * there or it may be at ~/Library/Application Support/JonDoBrowser-Data (the
  * latter location is used if the .app bundle is in a directory whose path
  * contains /Applications or if we lack write access to the directory that
  * contains the .app).
  * When built without --enable-tor-browser-data-outside-app-dir, this
- * directory is TorBrowser.app/TorBrowser.
+ * directory is JonDoBrowser.app/JonDoBrowser.
  *
  * @param aExeFile  The firefox executable.
- * @param aFile     Out parameter that is set to the Tor Browser user data
+ * @param aFile     Out parameter that is set to the JonDoBrowser user data
  *                  directory.
  * @return NS_OK on success.  Error otherwise.
  */
 extern NS_METHOD
-TorBrowser_GetUserDataDir(nsIFile *aExeFile, nsIFile** aFile);
+JonDoBrowser_GetUserDataDir(nsIFile *aExeFile, nsIFile** aFile);
 
 #endif // !TorFileUtils_h__

@@ -76,7 +76,7 @@ list_symlinks symlinks symlink_targets
 # which, if present, contain old, unpacked copies of HTTPS Everywhere):
 # Make sure we delete the pre 5.1.0 HTTPS Everywhere as well in case it
 # exists. The extension ID got changed with the version bump to 5.1.0.
-ext_path='TorBrowser/Data/Browser/profile.default/extensions'
+ext_path='JonDoBrowser/Data/Browser/profile.default/extensions'
 if [ -d "$ext_dir" ]; then
   directories_to_remove="$ext_path/https-everywhere@eff.org $ext_path/https-everywhere-eff@eff.org"
 else

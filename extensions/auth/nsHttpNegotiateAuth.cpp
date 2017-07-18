@@ -136,7 +136,7 @@ nsHttpNegotiateAuth::ChallengeReceived(nsIHttpAuthenticableChannel *authChannel,
 
     *identityInvalid = false;
 
-    /* Always fail Negotiate auth for Tor Browser. We don't need it. */
+    /* Always fail Negotiate auth for JonDoBrowser. We don't need it. */
     return NS_ERROR_ABORT;
 
     if (module)

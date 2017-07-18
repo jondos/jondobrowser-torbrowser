@@ -77,7 +77,7 @@ function defineCohort() {
   }
   cohortDefinedOnThisSession = true;
 
-  // For Tor Browser, always use the e10s policies associated with the esr
+  // For JonDoBrowser, always use the e10s policies associated with the esr
   // update channel so that the e10s behavior is the same for all builds.
   let updateChannel = "esr";
 
