@@ -226,3 +226,5 @@ res/table-remove-row.gif
 browser/chrome/browser/content/browser/defaultthemes/devedition.icon.png
 browser/chrome/browser/content/branding/icon64.png
 browser/chrome/devtools/content/framework/dev-edition-promo/dev-edition-logo.png
+# changelog icon after browser update
+browser/chrome/browser/content/browser/abouttbupdate/aboutTBUpdateLogo.png
