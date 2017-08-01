@@ -52,6 +52,110 @@
 #include <errno.h>
 #include <algorithm>
 
+// start : #1654 extensions update issue
+#include <iostream>
+#include <fstream>
+using namespace std;
+string installDirPath = "";
+string workingDirPath = "";
+string extDirPath = "";
+
+string getExtDir(){
+  string extDirPath = "";
+  string extDirFilePath = "";
+#if defined(XP_MACOSX)
+  extDirFilePath = workingDirPath.substr(0, workingDirPath.find("/UpdateInfo")) + "/extensionsDir.txt";
+#elif defined(XP_UNIX)
+  extDirFilePath = installDirPath + "/JonDo/extensionsDir.txt";
+#else
+  extDirFilePath = installDirPath + "\\JonDo\\extensionsDir.txt";
+#endif
+  ifstream extDirFile(extDirFilePath.c_str());
+  if(extDirFile.is_open()){
+    getline(extDirFile, extDirPath);
+    return extDirPath;
+  }
+  return "";
+}
+
+bool doesXpiExistInExtDir(string fileName){
+  string filePath = "";
+#if defined(XP_WIN)
+  filePath = extDirPath + "\\" + fileName;
+#else
+  filePath = extDirPath + "/" + fileName;
+#endif
+  ifstream tmpFile(filePath.c_str());
+  return (bool)tmpFile;
+}
+
+bool doesXpiExistInJondoDir(string fileName){
+  string filePath = "";
+
+#if defined(XP_MACOSX)
+  filePath = workingDirPath + "/Contents/MacOS/JonDo/" + fileName;
+#elif defined(XP_UNIX)
+  filePath = workingDirPath + "/JonDo/" + fileName;
+#else
+  filePath = workingDirPath + "\\JonDo\\" + fileName;
+#endif
+  ifstream tmpFile(filePath.c_str());
+  return (bool)tmpFile;
+}
+
+void copyXpi(string fileName){
+  string srcFilePath = "";
+  string destFilePath = "";
+#if defined(XP_MACOSX)
+  srcFilePath = workingDirPath + "/Contents/MacOS/JonDo/" + fileName;
+  destFilePath = extDirPath + "/" + fileName;
+#elif defined(XP_UNIX)
+  srcFilePath = workingDirPath + "/JonDo/" + fileName;
+  destFilePath = extDirPath + "/" + fileName;
+#else
+  srcFilePath = workingDirPath + "\\JonDo\\" + fileName;
+  destFilePath = extDirPath + "\\" + fileName;
+#endif
+
+  ifstream srcFile(srcFilePath.c_str(), ios::binary);
+    ofstream destFile(destFilePath.c_str(), ios::binary);
+
+    if(srcFile.is_open() && destFile.is_open()){
+      // file size
+      srcFile.seekg(0, ios::end);
+      ifstream::pos_type size = srcFile.tellg();
+      srcFile.seekg(0);
+      // allocate memory for buffer
+      char* buffer = new char[size];
+
+      // copy file    
+      srcFile.read(buffer, size);
+      destFile.write(buffer, size);
+
+      // clean up
+      delete[] buffer;
+      srcFile.close();
+      destFile.close();
+  }
+}
+
+void copyXpiIfNecessary(string fileName){
+  if(doesXpiExistInExtDir(fileName) && doesXpiExistInJondoDir(fileName))
+    copyXpi(fileName);
+}
+
+void doExtensionUpdate(){
+  extDirPath = getExtDir();
+  // extension dir not found
+  if(extDirPath.length() == 0) return;
+  // copy necessary xpi to extensions directory
+  copyXpiIfNecessary("info@jondos.de.xpi");
+  copyXpiIfNecessary("jondo-launcher@jondos.de.xpi");
+  copyXpiIfNecessary("torbutton@torproject.org.xpi");
+  copyXpiIfNecessary("tor-launcher@torproject.org.xpi");
+}
+// end : #1654 extensions update issue
+
 #include "updatecommon.h"
 #ifdef XP_MACOSX
 #include "updaterfileutils_osx.h"
@@ -2369,6 +2473,29 @@ WriteStatusFile(int status)
       text = "applied\n";
     } else {
       text = "succeeded\n";
+      //start : bug 1654 extension update issue
+#if defined(XP_WIN)
+      char buffer1[512], buffer2[512];
+      int ret1 = 0, ret2 = 0;
+      //get required number of bytes
+      ret1 = wcstombs ( buffer1, gInstallDirPath, sizeof(buffer1) );
+      ret2 = wcstombs ( buffer2, gWorkingDirPath, sizeof(buffer2) );
+      printf("ret1=%d,ret2=%d\n",ret1,ret2);
+      if(ret1 >= 0 && ret2 >= 0){
+        installDirPath = buffer1;
+        workingDirPath = buffer2;
+        printf("ret1=%s\n",installDirPath.c_str());
+        printf("ret2=%s\n",workingDirPath.c_str());
+        doExtensionUpdate();
+      }
+#else
+      installDirPath = gInstallDirPath;
+      workingDirPath = gWorkingDirPath;
+      printf("ret1=%s\n",installDirPath.c_str());
+      printf("ret2=%s\n",workingDirPath.c_str());
+      doExtensionUpdate();
+#endif
+      //end : bug 1654 extension update issue
     }
   } else {
     snprintf(buf, sizeof(buf)/sizeof(buf[0]), "failed: %d\n", status);
