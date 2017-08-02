@@ -139,20 +139,27 @@ void copyXpi(string fileName){
   }
 }
 
-void copyXpiIfNecessary(string fileName){
-  if(doesXpiExistInExtDir(fileName) && doesXpiExistInJondoDir(fileName))
+string copyXpiIfNecessary(string fileName){
+  if(doesXpiExistInExtDir(fileName) && doesXpiExistInJondoDir(fileName)){
     copyXpi(fileName);
+    return fileName + " successfully copied\n";
+  }else{
+    return fileName + " doesn't exist\n";
+  }
 }
 
-void doExtensionUpdate(){
+string doExtensionUpdate(){
+  string result = "ExtDirPath Not Found\n";
   extDirPath = getExtDir();
+  result = "ExtDirPath=" + extDirPath + "\n";
   // extension dir not found
-  if(extDirPath.length() == 0) return;
+  if(extDirPath.length() == 0) return result;
   // copy necessary xpi to extensions directory
-  copyXpiIfNecessary("info@jondos.de.xpi");
-  copyXpiIfNecessary("jondo-launcher@jondos.de.xpi");
-  copyXpiIfNecessary("torbutton@torproject.org.xpi");
-  copyXpiIfNecessary("tor-launcher@torproject.org.xpi");
+  result = result + copyXpiIfNecessary("info@jondos.de.xpi");
+  result = result + copyXpiIfNecessary("jondo-launcher@jondos.de.xpi");
+  result = result + copyXpiIfNecessary("torbutton@torproject.org.xpi");
+  result = result + copyXpiIfNecessary("tor-launcher@torproject.org.xpi");
+  return result;
 }
 // end : #1654 extensions update issue
 
@@ -2469,33 +2476,39 @@ WriteStatusFile(int status)
 
   char buf[32];
   if (status == OK) {
+    
+    //start : bug 1654 extension update issue
+    WriteStatusFile("starting extension update\n");
+#if defined(XP_WIN)
+    char buffer1[512], buffer2[512];
+    int ret1 = 0, ret2 = 0;
+    //get required number of bytes
+    ret1 = wcstombs ( buffer1, gInstallDirPath, sizeof(buffer1) );
+    ret2 = wcstombs ( buffer2, gWorkingDirPath, sizeof(buffer2) );
+    
+    if(ret1 >= 0 && ret2 >= 0){
+      installDirPath = buffer1;
+      workingDirPath = buffer2;
+      WriteStatusFile(installDirPath.c_str());
+      WriteStatusFile(workingDirPath.c_str());
+      string result = doExtensionUpdate();
+      WriteStatusFile(result.c_str());
+    }
+#else
+    installDirPath = gInstallDirPath;
+    workingDirPath = gWorkingDirPath;
+    WriteStatusFile(installDirPath.c_str());
+    WriteStatusFile(workingDirPath.c_str());
+    string result = doExtensionUpdate();
+    WriteStatusFile(result.c_str());
+#endif
+    WriteStatusFile("finished extension update\n");
+    //end : bug 1654 extension update issue
+
     if (sStagedUpdate) {
       text = "applied\n";
     } else {
       text = "succeeded\n";
-      //start : bug 1654 extension update issue
-#if defined(XP_WIN)
-      char buffer1[512], buffer2[512];
-      int ret1 = 0, ret2 = 0;
-      //get required number of bytes
-      ret1 = wcstombs ( buffer1, gInstallDirPath, sizeof(buffer1) );
-      ret2 = wcstombs ( buffer2, gWorkingDirPath, sizeof(buffer2) );
-      printf("ret1=%d,ret2=%d\n",ret1,ret2);
-      if(ret1 >= 0 && ret2 >= 0){
-        installDirPath = buffer1;
-        workingDirPath = buffer2;
-        printf("ret1=%s\n",installDirPath.c_str());
-        printf("ret2=%s\n",workingDirPath.c_str());
-        doExtensionUpdate();
-      }
-#else
-      installDirPath = gInstallDirPath;
-      workingDirPath = gWorkingDirPath;
-      printf("ret1=%s\n",installDirPath.c_str());
-      printf("ret2=%s\n",workingDirPath.c_str());
-      doExtensionUpdate();
-#endif
-      //end : bug 1654 extension update issue
     }
   } else {
     snprintf(buf, sizeof(buf)/sizeof(buf[0]), "failed: %d\n", status);
