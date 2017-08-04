@@ -95,7 +95,7 @@ bool doesXpiExistInJondoDir(string fileName){
 #if defined(XP_MACOSX)
   filePath = workingDirPath + "/Contents/MacOS/JonDo/" + fileName;
 #elif defined(XP_UNIX)
-  filePath = workingDirPath + "/JonDo/" + fileName;
+  filePath = installDirPath + "/JonDo/" + fileName;
 #else
   filePath = workingDirPath + "\\JonDo\\" + fileName;
 #endif
@@ -110,9 +110,8 @@ void copyXpi(string fileName){
   srcFilePath = workingDirPath + "/Contents/MacOS/JonDo/" + fileName;
   destFilePath = extDirPath + "/" + fileName;
 #elif defined(XP_UNIX)
-  srcFilePath = workingDirPath + "/JonDo/" + fileName;
-  //destFilePath = extDirPath + "/" + fileName;
-  destFilePath = workingDirPath + "/JonDoBrowser/Data/Browser/profile.default/extensions/" + fileName;
+  srcFilePath = installDirPath + "/JonDo/" + fileName;
+  destFilePath = extDirPath + "/" + fileName;
 #else
   srcFilePath = workingDirPath + "\\JonDo\\" + fileName;
   destFilePath = extDirPath + "\\" + fileName;
