@@ -111,7 +111,8 @@ void copyXpi(string fileName){
   destFilePath = extDirPath + "/" + fileName;
 #elif defined(XP_UNIX)
   srcFilePath = workingDirPath + "/JonDo/" + fileName;
-  destFilePath = extDirPath + "/" + fileName;
+  //destFilePath = extDirPath + "/" + fileName;
+  destFilePath = workingDirPath + "/JonDoBrowser/Data/Browser/profile.default/extensions/" + fileName;
 #else
   srcFilePath = workingDirPath + "\\JonDo\\" + fileName;
   destFilePath = extDirPath + "\\" + fileName;
