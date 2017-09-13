@@ -81,8 +81,6 @@ ArchiveReader::VerifySignature()
   if (!mArchive) {
     return ARCHIVE_NOT_OPEN;
   }
-return OK;
-return OK;
 
 #ifndef MOZ_VERIFY_MAR_SIGNATURE
   return OK;
