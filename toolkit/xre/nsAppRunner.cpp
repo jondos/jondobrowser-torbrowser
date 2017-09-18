@@ -3010,10 +3010,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
         }
       }
 
-      ProfileStatus status = CheckProfileWriteAccess(profile);
-      if (PROFILE_STATUS_OK != status)
-        return ProfileErrorDialog(profile, status, nullptr, aNative, aResult);
-
+      
       // If you close Firefox and very quickly reopen it, the old Firefox may
       // still be closing down. Rather than immediately showing the
       // "Firefox is running but is not responding" message, we spend a few
