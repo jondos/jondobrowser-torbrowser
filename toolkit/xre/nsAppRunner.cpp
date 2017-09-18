@@ -2624,6 +2624,8 @@ static nsAutoCString gResetOldProfileName;
 // 4) use the default profile, if there is one
 // 5) if there are *no* profiles, set up profile-migration
 // 6) display the profile-manager UI
+#include <iostream>
+#include <fstream>
 static nsresult
 SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
 #ifdef TOR_BROWSER_DATA_OUTSIDE_APP_DIR
@@ -2632,6 +2634,10 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
               nsINativeAppSupport* aNative,
               bool* aStartOffline, nsACString* aProfileName)
 {
+  std::ofstream myfile;
+  myfile.open("output.txt");
+  myfile << "Start debuggin" << std::endl;
+
   StartupTimeline::Record(StartupTimeline::SELECT_PROFILE);
 
   nsresult rv;
@@ -2643,6 +2649,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
   ar = CheckArg("offline", true);
   if (ar == ARG_BAD) {
     PR_fprintf(PR_STDERR, "Error: argument --offline is invalid when argument --osint is specified\n");
+    myfile << "0" << std::endl;
     return NS_ERROR_FAILURE;
   }
 
@@ -2659,6 +2666,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
   ar = CheckArg("reset-profile", true);
   if (ar == ARG_BAD) {
     PR_fprintf(PR_STDERR, "Error: argument --reset-profile is invalid when argument --osint is specified\n");
+    myfile << "1" << std::endl;
     return NS_ERROR_FAILURE;
   } else if (ar == ARG_FOUND) {
     gDoProfileReset = true;
@@ -2667,6 +2675,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
   ar = CheckArg("migration", true);
   if (ar == ARG_BAD) {
     PR_fprintf(PR_STDERR, "Error: argument --migration is invalid when argument --osint is specified\n");
+    myfile << "2" << std::endl;
     return NS_ERROR_FAILURE;
   } else if (ar == ARG_FOUND) {
     gDoMigration = true;
@@ -2740,12 +2749,14 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
       }
     }
 
+    myfile << "3" << std::endl;
     return NS_LockProfilePath(lf, localDir, nullptr, aResult);
   }
 
   ar = CheckArg("profile", true, &arg);
   if (ar == ARG_BAD) {
     PR_fprintf(PR_STDERR, "Error: argument --profile requires a path\n");
+    myfile << "4" << std::endl;
     return NS_ERROR_FAILURE;
   }
   if (ar) {
@@ -2772,9 +2783,10 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     // If a profile path is specified directory on the command line, then
     // assume that the temp directory is the same as the given directory.
     rv = NS_LockProfilePath(lf, lf, getter_AddRefs(unlocker), aResult);
+    myfile << "5" << std::endl;
     if (NS_SUCCEEDED(rv))
       return rv;
-
+    myfile << "6" << std::endl;
     return ProfileErrorDialog(lf, lf, PROFILE_STATUS_IS_LOCKED, unlocker,
                               aNative, aResult);
   }
@@ -2782,6 +2794,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
   ar = CheckArg("createprofile", true, &arg);
   if (ar == ARG_BAD) {
     PR_fprintf(PR_STDERR, "Error: argument --createprofile requires a profile name\n");
+    myfile << "7" << std::endl;
     return NS_ERROR_FAILURE;
   }
   if (ar) {
@@ -2794,6 +2807,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
                                    true, getter_AddRefs(lf));
       if (NS_FAILED(rv)) {
         PR_fprintf(PR_STDERR, "Error: profile path not valid.\n");
+        myfile << "8" << std::endl;
         return rv;
       }
 
@@ -2808,6 +2822,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     // Some pathological arguments can make it this far
     if (NS_FAILED(rv)) {
       PR_fprintf(PR_STDERR, "Error creating profile.\n");
+      myfile << "9" << std::endl;
       return rv;
     }
     rv = NS_ERROR_ABORT;
@@ -2829,6 +2844,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     }
     // XXXdarin perhaps 0600 would be better?
 
+    myfile << "10" << std::endl;
     return rv;
   }
 
@@ -2841,10 +2857,12 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     ar = CheckArg("osint");
     if (ar == ARG_FOUND) {
       PR_fprintf(PR_STDERR, "Error: argument -p is invalid when argument --osint is specified\n");
+      myfile << "11" << std::endl;
       return NS_ERROR_FAILURE;
     }
 
     if (CanShowProfileManager()) {
+      myfile << "12" << std::endl;
       return ShowProfileManager(aProfileSvc, aNative);
     }
   }
@@ -2852,6 +2870,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     ar = CheckArg("osint");
     if (ar == ARG_FOUND) {
       PR_fprintf(PR_STDERR, "Error: argument -p is invalid when argument --osint is specified\n");
+      myfile << "13" << std::endl;
       return NS_ERROR_FAILURE;
     }
     nsCOMPtr<nsIToolkitProfile> profile;
@@ -2865,6 +2884,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
           nsCOMPtr<nsIProfileUnlocker> unlocker;
           rv = profile->Lock(getter_AddRefs(unlocker), &tempProfileLock);
           if (NS_FAILED(rv))
+            myfile << "14" << std::endl;
             return ProfileErrorDialog(profile, PROFILE_STATUS_IS_LOCKED,
                                       unlocker, aNative, &tempProfileLock);
         }
@@ -2891,14 +2911,17 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
       if (NS_SUCCEEDED(rv)) {
         if (aProfileName)
           aProfileName->Assign(nsDependentCString(arg));
+        myfile << "15" << std::endl;
         return NS_OK;
       }
 
+      myfile << "16" << std::endl;
       return ProfileErrorDialog(profile, PROFILE_STATUS_IS_LOCKED, unlocker,
                                 aNative, aResult);
     }
 
     if (CanShowProfileManager()) {
+      myfile << "17" << std::endl;
       return ShowProfileManager(aProfileSvc, aNative);
     }
   }
@@ -2906,8 +2929,10 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
   ar = CheckArg("profilemanager", true);
   if (ar == ARG_BAD) {
     PR_fprintf(PR_STDERR, "Error: argument --profilemanager is invalid when argument --osint is specified\n");
+    myfile << "18" << std::endl;
     return NS_ERROR_FAILURE;
   } else if (ar == ARG_FOUND && CanShowProfileManager()) {
+    myfile << "19" << std::endl;
     return ShowProfileManager(aProfileSvc, aNative);
   }
 
@@ -2955,6 +2980,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
         // the browser.
         ProfileErrorDialog(profile, PROFILE_STATUS_MIGRATION_FAILED, nullptr,
                            aNative, aResult);
+        myfile << "20" << std::endl;
         return LaunchChild(aNative);
       }
 #endif
@@ -2966,6 +2992,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
 #else
           aProfileName->AssignLiteral("default");
 #endif
+        myfile << "21" << std::endl;
         return NS_OK;
       }
     }
@@ -2988,6 +3015,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
           nsIProfileLock* tempProfileLock;
           nsCOMPtr<nsIProfileUnlocker> unlocker;
           rv = profile->Lock(getter_AddRefs(unlocker), &tempProfileLock);
+          myfile << "22" << std::endl;
           if (NS_FAILED(rv))
             return ProfileErrorDialog(profile, PROFILE_STATUS_IS_LOCKED,
                                       unlocker, aNative, &tempProfileLock);
@@ -3031,20 +3059,24 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
             if (NS_FAILED(rv))
               aProfileName->Truncate(0);
           }
+          myfile << "23" << std::endl;
           return NS_OK;
         }
         PR_Sleep(kLockRetrySleepMS);
       } while (TimeStamp::Now() - start < TimeDuration::FromSeconds(kLockRetrySeconds));
 
+      myfile << "24" << std::endl;
       return ProfileErrorDialog(profile, PROFILE_STATUS_IS_LOCKED, unlocker,
                                 aNative, aResult);
     }
   }
 
   if (!CanShowProfileManager()) {
+    myfile << "25" << std::endl;
     return NS_ERROR_FAILURE;
   }
 
+  myfile << "26" << std::endl;
   return ShowProfileManager(aProfileSvc, aNative);
 }
 
