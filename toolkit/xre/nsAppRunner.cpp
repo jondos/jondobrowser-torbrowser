@@ -4502,21 +4502,6 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
 #endif
 
   rv = NS_NewToolkitProfileService(getter_AddRefs(mProfileSvc));
-#ifdef TOR_BROWSER_DATA_OUTSIDE_APP_DIR
-  if (NS_FAILED(rv)) {
-    // NS_NewToolkitProfileService() returns a generic NS_ERROR_FAILURE error
-    // if creation of the JonDoBrowser-Data directory fails due to access denied
-    // or because of a read-only disk volume. Do an extra check here to detect
-    // these errors so we can display an informative error message.
-    ProfileStatus status = CheckJonDoBrowserDataWriteAccess(exeDir);
-    if ((PROFILE_STATUS_ACCESS_DENIED == status) ||
-        (PROFILE_STATUS_READ_ONLY == status)) {
-      ProfileErrorDialog(nullptr, nullptr, status, nullptr, mNativeApp,
-                        nullptr);
-      return 1;
-    }
-  }
-#endif
 
   if (rv == NS_ERROR_FILE_ACCESS_DENIED) {
     PR_fprintf(PR_STDERR, "Error: Access was denied while trying to open files in " \
