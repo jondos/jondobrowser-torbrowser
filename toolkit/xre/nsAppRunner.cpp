@@ -2754,15 +2754,6 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
       gDoProfileReset = false;
     }
 
-    nsCOMPtr<nsIToolkitProfile> profile;
-    rv = aProfileSvc->GetProfileByName(nsDependentCString(arg),
-                                       getter_AddRefs(profile));
-    if (NS_SUCCEEDED(rv)) {
-      ProfileStatus status = CheckProfileWriteAccess(profile);
-      if (PROFILE_STATUS_OK != status)
-        return ProfileErrorDialog(profile, status, nullptr, aNative, aResult);
-    }
-
     nsCOMPtr<nsIFile> lf;
     rv = XRE_GetFileFromPath(arg, getter_AddRefs(lf));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2777,10 +2768,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
         NS_ENSURE_SUCCESS(rv, rv);
     }
 
-    ProfileStatus status = CheckProfileWriteAccess(lf);
-    if (PROFILE_STATUS_OK != status)
-      return ProfileErrorDialog(lf, lf, status, nullptr, aNative, aResult);
-
+    
     // If a profile path is specified directory on the command line, then
     // assume that the temp directory is the same as the given directory.
     rv = NS_LockProfilePath(lf, lf, getter_AddRefs(unlocker), aResult);
