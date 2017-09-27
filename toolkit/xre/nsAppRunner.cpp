@@ -213,7 +213,7 @@
 #if defined(XP_LINUX) && !defined(ANDROID)
 #include "mozilla/SandboxInfo.h"
 #elif defined(XP_WIN)
-#include "SandboxBroker.h"
+#include "sandboxBroker.h"
 #endif
 #endif
 
@@ -1882,20 +1882,7 @@ GetOverrideStringBundle(nsIStringBundleService* aSBS, nsIStringBundle* *aResult)
     return;
   }
 
-bool isTor = false;
-#ifdef XP_WIN
-    WCHAR envValue[10];
-    int envValueLength = GetEnvironmentVariableW(L"JONDO_NETWORK", envValue, 10);
- 	  if (envValueLength > 0 && lstrcmpW(envValue, L"tor") == 0) isTor = true;
-#else
-	  const char *envValue = PR_GetEnv("JONDO_NETWORK");
-	  if(envValue != NULL && strcmp(envValue, "tor") == 0) isTor = true;
-#endif
-if(isTor)	{
-    uriString.Append("extensions/torbutton@torproject.org.xpi");
-} else {
-    uriString.Append("extensions/info@jondos.de.xpi");
-}
+  uriString.Append("extensions/torbutton@torproject.org.xpi");
 #else
   // Build Torbutton file URI string by starting from the profiles directory.
   bool persistent = false; // ignored
@@ -1913,20 +1900,7 @@ if(isTor)	{
     return;
   }
 
-bool isTor = false;
-#ifdef XP_WIN
-    WCHAR envValue[10];
-    int envValueLength = GetEnvironmentVariableW(L"JONDO_NETWORK", envValue, 10);
- 	  if (envValueLength > 0 && lstrcmpW(envValue, L"tor") == 0) isTor = true;
-#else
-	  const char *envValue = PR_GetEnv("JONDO_NETWORK");
-	  if(envValue != NULL && strcmp(envValue, "tor") == 0) isTor = true;
-#endif
-if(isTor)	{
-    uriString.Append("profile.default/extensions/torbutton@torproject.org.xpi");
-} else {
-    uriString.Append("profile.default/extensions/info@jondos.de.xpi");
-}
+  uriString.Append("profile.default/extensions/torbutton@torproject.org.xpi");
 #endif
 
   nsCString userAgentLocale;

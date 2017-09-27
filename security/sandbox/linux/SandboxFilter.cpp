@@ -496,6 +496,16 @@ class ContentSandboxPolicy : public SandboxPolicyCommon {
     return 0;
   }
 
+  static intptr_t SocketpairDatagramTrap(ArgsRef aArgs, void* aux) {
+    auto fds = reinterpret_cast<int*>(aArgs.args[3]);
+    // Return sequential packet sockets instead of the expected
+    // datagram sockets; see bug 1355274 for details.
+    if (socketpair(AF_UNIX, SOCK_SEQPACKET, 0, fds) != 0) {
+      return -errno;
+    }
+    return 0;
+  }
+
 public:
   explicit ContentSandboxPolicy(SandboxBrokerClient* aBroker):mBroker(aBroker) { }
   virtual ~ContentSandboxPolicy() { }
@@ -508,6 +518,7 @@ public:
     switch(aCall) {
     case SYS_RECVFROM:
     case SYS_SENDTO:
+    case SYS_SENDMMSG: // libresolv via libasyncns; see bug 1355274
       return Some(Allow());
 
     case SYS_SOCKETPAIR: {
@@ -517,9 +528,12 @@ public:
         return Some(Allow());
       }
       Arg<int> domain(0), type(1);
-      return Some(If(AllOf(domain == AF_UNIX,
-                           AnyOf(type == SOCK_STREAM, type == SOCK_SEQPACKET)),
-                     Allow())
+      return Some(If(domain == AF_UNIX,
+                     Switch(type)
+                     .Case(SOCK_STREAM, Allow())
+                     .Case(SOCK_SEQPACKET, Allow())
+                     .Case(SOCK_DGRAM, Trap(SocketpairDatagramTrap, nullptr))
+                     .Default(InvalidSyscall()))
                   .Else(InvalidSyscall()));
     }
 
@@ -531,10 +545,7 @@ public:
     case SYS_SEND:
     case SYS_SOCKET: // DANGEROUS
     case SYS_CONNECT: // DANGEROUS
-    case SYS_ACCEPT:
-    case SYS_ACCEPT4:
-    case SYS_BIND:
-    case SYS_LISTEN:
+    case SYS_ACCEPT4: // Used by a11y; see bug 1361238
     case SYS_GETSOCKOPT:
     case SYS_SETSOCKOPT:
     case SYS_GETSOCKNAME:
@@ -734,6 +745,18 @@ public:
     CASES_FOR_getresuid:
     CASES_FOR_getresgid:
       return Allow();
+
+    case __NR_prlimit64: {
+      // Allow only the getrlimit() use case.  (glibc seems to use
+      // only pid 0 to indicate the current process; pid == getpid()
+      // is equivalent and could also be allowed if needed.)
+      Arg<pid_t> pid(0);
+      // This is really a const struct ::rlimit*, but Arg<> doesn't
+      // work with pointers, only integer types.
+      Arg<uintptr_t> new_limit(2);
+      return If(AllOf(pid == 0, new_limit == 0), Allow())
+        .Else(InvalidSyscall());
+    }
 
     case __NR_umask:
     case __NR_kill:

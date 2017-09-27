@@ -52,117 +52,6 @@
 #include <errno.h>
 #include <algorithm>
 
-// start : #1654 extensions update issue
-#include <iostream>
-#include <fstream>
-using namespace std;
-string installDirPath = "";
-string workingDirPath = "";
-string extDirPath = "";
-
-string getExtDir(){
-  string extDirPath = "";
-  string extDirFilePath = "";
-#if defined(XP_MACOSX)
-  extDirFilePath = workingDirPath.substr(0, workingDirPath.find("/UpdateInfo")) + "/extensionsDir.txt";
-#elif defined(XP_UNIX)
-  extDirFilePath = installDirPath + "/JonDo/extensionsDir.txt";
-#else
-  extDirFilePath = installDirPath + "\\JonDo\\extensionsDir.txt";
-#endif
-  ifstream extDirFile(extDirFilePath.c_str());
-  if(extDirFile.is_open()){
-    getline(extDirFile, extDirPath);
-    return extDirPath;
-  }
-  return "";
-}
-
-bool doesXpiExistInExtDir(string fileName){
-  string filePath = "";
-#if defined(XP_WIN)
-  filePath = extDirPath + "\\" + fileName;
-#else
-  filePath = extDirPath + "/" + fileName;
-#endif
-  ifstream tmpFile(filePath.c_str());
-  return (bool)tmpFile;
-}
-
-bool doesXpiExistInJondoDir(string fileName){
-  string filePath = "";
-
-#if defined(XP_MACOSX)
-  filePath = workingDirPath + "/Contents/MacOS/JonDo/" + fileName;
-#elif defined(XP_UNIX)
-  filePath = installDirPath + "/JonDo/" + fileName;
-#else
-  filePath = workingDirPath + "\\JonDo\\" + fileName;
-#endif
-  ifstream tmpFile(filePath.c_str());
-  return (bool)tmpFile;
-}
-
-void copyXpi(string fileName){
-  string srcFilePath = "";
-  string destFilePath = "";
-#if defined(XP_MACOSX)
-  srcFilePath = workingDirPath + "/Contents/MacOS/JonDo/" + fileName;
-  destFilePath = extDirPath + "/" + fileName;
-#elif defined(XP_UNIX)
-  srcFilePath = installDirPath + "/JonDo/" + fileName;
-  destFilePath = extDirPath + "/" + fileName;
-#else
-  srcFilePath = workingDirPath + "\\JonDo\\" + fileName;
-  destFilePath = extDirPath + "\\" + fileName;
-#endif
-
-  ifstream srcFile(srcFilePath.c_str(), ios::binary);
-    ofstream destFile(destFilePath.c_str(), ios::binary);
-
-    if(srcFile.is_open() && destFile.is_open()){
-      // file size
-      srcFile.seekg(0, ios::end);
-      ifstream::pos_type size = srcFile.tellg();
-      srcFile.seekg(0);
-      // allocate memory for buffer
-      char* buffer = new char[size];
-
-      // copy file    
-      srcFile.read(buffer, size);
-      destFile.write(buffer, size);
-
-      // clean up
-      delete[] buffer;
-      srcFile.close();
-      destFile.close();
-  }
-}
-
-string copyXpiIfNecessary(string fileName){
-  if(doesXpiExistInExtDir(fileName) && doesXpiExistInJondoDir(fileName)){
-    copyXpi(fileName);
-    return fileName + " successfully copied\n";
-  }else{
-    return fileName + " doesn't exist\n";
-  }
-}
-
-string doExtensionUpdate(){
-  string result = "ExtDirPath Not Found\n";
-  extDirPath = getExtDir();
-  result = "ExtDirPath=" + extDirPath + "\n";
-  // extension dir not found
-  if(extDirPath.length() == 0) return result;
-  // copy necessary xpi to extensions directory
-  result = result + copyXpiIfNecessary("info@jondos.de.xpi");
-  result = result + copyXpiIfNecessary("jondo-launcher@jondos.de.xpi");
-  result = result + copyXpiIfNecessary("torbutton@torproject.org.xpi");
-  result = result + copyXpiIfNecessary("tor-launcher@torproject.org.xpi");
-  return result;
-}
-// end : #1654 extensions update issue
-
 #include "updatecommon.h"
 #ifdef XP_MACOSX
 #include "updaterfileutils_osx.h"
@@ -2476,35 +2365,6 @@ WriteStatusFile(int status)
 
   char buf[32];
   if (status == OK) {
-    
-    //start : bug 1654 extension update issue
-    WriteStatusFile("starting extension update\n");
-#if defined(XP_WIN)
-    char buffer1[512], buffer2[512];
-    int ret1 = 0, ret2 = 0;
-    //get required number of bytes
-    ret1 = wcstombs ( buffer1, gInstallDirPath, sizeof(buffer1) );
-    ret2 = wcstombs ( buffer2, gWorkingDirPath, sizeof(buffer2) );
-    
-    if(ret1 >= 0 && ret2 >= 0){
-      installDirPath = buffer1;
-      workingDirPath = buffer2;
-      WriteStatusFile(installDirPath.c_str());
-      WriteStatusFile(workingDirPath.c_str());
-      string result = doExtensionUpdate();
-      WriteStatusFile(result.c_str());
-    }
-#else
-    installDirPath = gInstallDirPath;
-    workingDirPath = gWorkingDirPath;
-    WriteStatusFile(installDirPath.c_str());
-    WriteStatusFile(workingDirPath.c_str());
-    string result = doExtensionUpdate();
-    WriteStatusFile(result.c_str());
-#endif
-    WriteStatusFile("finished extension update\n");
-    //end : bug 1654 extension update issue
-
     if (sStagedUpdate) {
       text = "applied\n";
     } else {
@@ -3146,14 +3006,6 @@ int NS_main(int argc, NS_tchar **argv)
   // The callback is the remaining arguments starting at callbackIndex.
   // The argument specified by callbackIndex is the callback executable and the
   // argument prior to callbackIndex is the working directory.
-#if defined(XP_WIN)
-  system("taskkill /F /T /IM JonDo.exe");
-  system("wmic process where \"name like \'%java%\'\" delete");
-#elif defined(XP_MACOSX)
-  system("pkill -f \'JAP.app\'");
-#else
-  system("pkill -f \'java.*JAP.jar*\'");
-#endif
   const int callbackIndex = 6;
 
 #ifdef XP_MACOSX

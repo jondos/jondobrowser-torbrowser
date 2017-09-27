@@ -17,7 +17,7 @@ pref("browser.usedOnWindows10", true);
 // each update manifest should contain attributes similar to:
 //   actions="showURL"
 //   openURL="https://blog.torproject.org/tor-browser-55a2-released"
-pref("startup.homepage_override_url", "https://jondobrowser.jondos.de/blog/jondobrowser-released/%CHANNEL%/");
+pref("startup.homepage_override_url", "https://blog.torproject.org/category/tags/tor-browser");
 
 // Try to nag a bit more about updates: Pop up a restart dialog an hour after the initial dialog
 pref("app.update.promptWaitTime", 3600);
@@ -194,9 +194,9 @@ pref("network.http.altsvc.enabled", false); // Temporarily disabled. See https:/
 pref("network.http.altsvc.oe", false); // Temporarily disabled. See https://bugs.torproject.org/16673
 
 // Proxy and proxy security
-pref("network.proxy.socks", "");
-pref("network.proxy.socks_port", 0);
-pref("network.proxy.socks_remote_dns", false);
+pref("network.proxy.socks", "127.0.0.1");
+pref("network.proxy.socks_port", 9150);
+pref("network.proxy.socks_remote_dns", true);
 pref("network.proxy.no_proxies_on", ""); // For fingerprinting and local service vulns (#10419)
 pref("network.proxy.type", 1);
 pref("network.security.ports.banned", "9050,9051,9150,9151");
@@ -210,6 +210,9 @@ pref("network.protocol-handler.warn-external.mailto", true);
 pref("network.protocol-handler.warn-external.news", true);
 pref("network.protocol-handler.warn-external.nntp", true);
 pref("network.protocol-handler.warn-external.snews", true);
+// Make sure we don't have any GIO supported protocols (defense in depth
+// measure)
+pref("network.gio.supported-protocols", "");
 pref("plugin.disable", true); // Disable to search plugins on first start
 pref("plugins.click_to_play", true);
 pref("plugin.state.flash", 1);
@@ -288,12 +291,16 @@ pref("extensions.autoDisableScopes", 0);
 pref("extensions.bootstrappedAddons", "{}");
 pref("extensions.checkCompatibility.4.*", false);
 pref("extensions.databaseSchema", 3);
-pref("extensions.enabledAddons", "https-everywhere%40eff.org:3.1.4,%7B73a6fe31-595d-460b-a920-fcc0f8843232%7D:2.6.6.1,info%40jondos.de:1.5.2,ubufox%40ubuntu.com:2.6,jondoswitcher%40jondos.de:0.1.1,jondo-launcher%40jondos.de:0.1.1pre-alpha,%7B972ce4c6-7e08-4474-a285-3208198ce6fd%7D:17.0.5");
+pref("extensions.enabledAddons", "https-everywhere%40eff.org:3.1.4,%7B73a6fe31-595d-460b-a920-fcc0f8843232%7D:2.6.6.1,torbutton%40torproject.org:1.5.2,ubufox%40ubuntu.com:2.6,tor-launcher%40torproject.org:0.1.1pre-alpha,%7B972ce4c6-7e08-4474-a285-3208198ce6fd%7D:17.0.5");
 pref("extensions.enabledItems", "langpack-en-US@firefox.mozilla.org:,{73a6fe31-595d-460b-a920-fcc0f8843232}:1.9.9.57,{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}:1.2.4,{972ce4c6-7e08-4474-a285-3208198ce6fd}:3.5.8");
 pref("extensions.enabledScopes", 1);
 pref("extensions.pendingOperations", false);
 pref("xpinstall.whitelist.add", "");
 pref("xpinstall.whitelist.add.36", "");
+// We don't know what extensions Mozilla is advertising to our users and we
+// don't want to have some random Google Analytics script running either on the
+// about:addons page, see bug 22073 and 22900.
+pref("extensions.getAddons.showPane", false);
 
 // Toolbar layout
 pref("browser.uiCustomization.state", "{\"placements\":{\"PanelUI-contents\":[\"edit-controls\",\"zoom-controls\",\"new-window-button\",\"save-page-button\",\"print-button\",\"bookmarks-menu-button\",\"history-panelmenu\",\"find-button\",\"preferences-button\",\"add-ons-button\",\"developer-button\",\"https-everywhere-button\",\"downloads-button\"],\"addon-bar\":[\"addonbar-closebutton\",\"status-bar\"],\"PersonalToolbar\":[\"personal-bookmarks\"],\"nav-bar\":[\"noscript-tbb\",\"torbutton-button\",\"urlbar-container\",\"search-container\",\"webrtc-status-button\",\"loop-button\"],\"TabsToolbar\":[\"tabbrowser-tabs\",\"new-tab-button\",\"alltabs-button\"],\"toolbar-menubar\":[\"menubar-items\"]},\"seen\":[],\"dirtyAreaCache\":[\"PersonalToolbar\",\"nav-bar\",\"TabsToolbar\",\"toolbar-menubar\",\"PanelUI-contents\",\"addon-bar\"],\"currentVersion\":4,\"newElementCount\":0}");
@@ -350,6 +357,9 @@ pref("security.ssl.errorReporting.enabled", false);
 // in case the download panel got removed from the toolbar.
 pref("browser.download.panel.shown", true);
 
+// Treat .onions as secure
+pref("dom.securecontext.whitelist_onions", true);
+
 #ifdef TOR_BROWSER_VERSION
 #expand pref("torbrowser.version", __TOR_BROWSER_VERSION__);
 #endif
@@ -359,12 +369,12 @@ pref("browser.download.panel.shown", true);
 #ifdef MOZ_BUNDLED_FONTS
 
 #ifdef XP_MACOSX
-pref("font.system.whitelist", "AppleGothic, Apple Color Emoji, Arial, Courier, Geneva, Georgia, Heiti TC, Helvetica, Helvetica Neue, .Helvetica Neue DeskInterface, Hiragino Kaku Gothic ProN, Lucida Grande, Monaco, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi, STHeiti, STIX Math, Tahoma, Thonburi, Times, Times New Roman, Verdana");
-pref("font.name-list.cursive.x-unicode", "Apple Chancery, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi");
-pref("font.name-list.fantasy.x-unicode", "Papyrus, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi");
-pref("font.name-list.monospace.x-unicode", "Courier, Arial, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi");
-pref("font.name-list.sans-serif.x-unicode", "Helvetica, Tahoma, Arial, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi");
-pref("font.name-list.serif.x-unicode", "Times, Arial, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi");
+pref("font.system.whitelist", "AppleGothic, Apple Color Emoji, Arial, Courier, Geneva, Georgia, Heiti TC, Helvetica, Helvetica Neue, .Helvetica Neue DeskInterface, Hiragino Kaku Gothic ProN, Lucida Grande, Monaco, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Buginese, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi, STHeiti, STIX Math, Tahoma, Thonburi, Times, Times New Roman, Verdana");
+pref("font.name-list.cursive.x-unicode", "Apple Chancery, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Buginese, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi");
+pref("font.name-list.fantasy.x-unicode", "Papyrus, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Buginese, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi");
+pref("font.name-list.monospace.x-unicode", "Courier, Arial, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Buginese, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi");
+pref("font.name-list.sans-serif.x-unicode", "Helvetica, Tahoma, Arial, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Buginese, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi");
+pref("font.name-list.serif.x-unicode", "Times, Arial, Noto Sans Armenian, Noto Sans Bengali, Noto Sans Buginese, Noto Sans Canadian Aboriginal, Noto Sans Cherokee, Noto Sans Devanagari, Noto Sans Ethiopic, Noto Sans Gujarati, Noto Sans Gurmukhi, Noto Sans Kannada, Noto Sans Khmer, Noto Sans Lao, Noto Sans Malayalam, Noto Sans Mongolian, Noto Sans Myanmar, Noto Sans Oriya, Noto Sans Sinhala, Noto Sans Tamil, Noto Sans Telugu, Noto Sans Thaana, Noto Sans Tibetan, Noto Sans Yi");
 pref("font.name.cursive.ar", "Arial");
 pref("font.name.fantasy.ar", "Arial");
 pref("font.name.monospace.ar", "Arial");

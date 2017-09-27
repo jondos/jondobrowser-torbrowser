@@ -1135,7 +1135,7 @@ BrowserGlue.prototype = {
           // disabled. Even if they lack Mozilla's blessing they are enabled
           // nevertheless.
           if ((addon.signedState <= AddonManager.SIGNEDSTATE_MISSING) &&
-              !(addon.id== "torbutton@torproject.org" || addon.id == "info@jondos.de" || addon.id == "jondo-launcher@jondos.de" || addon.id == "jondoswitcher@jondos.de" ||
+              !(addon.id == "torbutton@torproject.org" ||
                 addon.id == "tor-launcher@torproject.org" ||
                 addon.id == "https-everywhere-eff@eff.org")) {
             this._notifyUnsignedAddonsDisabled();
