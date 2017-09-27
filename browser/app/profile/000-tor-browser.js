@@ -194,9 +194,9 @@ pref("network.http.altsvc.enabled", false); // Temporarily disabled. See https:/
 pref("network.http.altsvc.oe", false); // Temporarily disabled. See https://bugs.torproject.org/16673
 
 // Proxy and proxy security
-pref("network.proxy.socks", "127.0.0.1");
-pref("network.proxy.socks_port", 9150);
-pref("network.proxy.socks_remote_dns", true);
+pref("network.proxy.socks", "");
+pref("network.proxy.socks_port", 0);
+pref("network.proxy.socks_remote_dns", false);
 pref("network.proxy.no_proxies_on", ""); // For fingerprinting and local service vulns (#10419)
 pref("network.proxy.type", 1);
 pref("network.security.ports.banned", "9050,9051,9150,9151");
@@ -291,7 +291,7 @@ pref("extensions.autoDisableScopes", 0);
 pref("extensions.bootstrappedAddons", "{}");
 pref("extensions.checkCompatibility.4.*", false);
 pref("extensions.databaseSchema", 3);
-pref("extensions.enabledAddons", "https-everywhere%40eff.org:3.1.4,%7B73a6fe31-595d-460b-a920-fcc0f8843232%7D:2.6.6.1,torbutton%40torproject.org:1.5.2,ubufox%40ubuntu.com:2.6,tor-launcher%40torproject.org:0.1.1pre-alpha,%7B972ce4c6-7e08-4474-a285-3208198ce6fd%7D:17.0.5");
+pref("extensions.enabledAddons", "https-everywhere%40eff.org:3.1.4,%7B73a6fe31-595d-460b-a920-fcc0f8843232%7D:2.6.6.1,info%40jondos.de:1.5.2,ubufox%40ubuntu.com:2.6,jondoswitcher%40jondos.de:0.1.1,jondo-launcher%40jondos.de:0.1.1pre-alpha,%7B972ce4c6-7e08-4474-a285-3208198ce6fd%7D:17.0.5");
 pref("extensions.enabledItems", "langpack-en-US@firefox.mozilla.org:,{73a6fe31-595d-460b-a920-fcc0f8843232}:1.9.9.57,{e0204bd5-9d31-402b-a99d-a6aa8ffebdca}:1.2.4,{972ce4c6-7e08-4474-a285-3208198ce6fd}:3.5.8");
 pref("extensions.enabledScopes", 1);
 pref("extensions.pendingOperations", false);
