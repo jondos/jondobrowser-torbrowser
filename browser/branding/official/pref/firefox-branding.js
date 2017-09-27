@@ -15,10 +15,10 @@ pref("app.update.download.backgroundInterval", 0);
 pref("app.update.promptWaitTime", 172800);
 // URL user can browse to manually if for some reason all update installation
 // attempts fail.
-pref("app.update.url.manual", "https://jondobrowser.jondos.de/jondobrowser/");
+pref("app.update.url.manual", "https://jondobrowser.jondos.de/releases/current/");
 // A default value for the "More information about this update" link
 // supplied in the "An update is available" page of the update wizard.
-pref("app.update.url.details", "https://jondobrowser.jondos.de/jondobrowser/");
+pref("app.update.url.details", "https://jondobrowser.jondos.de/blog/jondobrowser-released/%CHANNEL%/");
 
 // The number of days a binary is permitted to be old
 // without checking for an update.  This assumes that
