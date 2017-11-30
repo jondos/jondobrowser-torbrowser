@@ -286,6 +286,9 @@ using mozilla::scache::StartupCache;
 using mozilla::dom::ContentParent;
 using mozilla::dom::ContentChild;
 
+#include <iostream>
+#include <fstream>
+
 // Save literal putenv string to environment variable.
 static void
 SaveToEnv(const char *putenv)
@@ -2419,6 +2422,9 @@ migrateOneJonDoBrowserDataDir(nsIFile *aSrcParentDir,
   NS_ENSURE_ARG_POINTER(aSrcParentDir);
   NS_ENSURE_ARG_POINTER(aDestParentDir);
 
+  std::ofstream outFile("/Users/admin/Downloads/log.txt", std::ios_base::app);
+  outFile << "started" << std::endl;
+
   nsCOMPtr<nsIFile> srcDir;
   nsresult rv = aSrcParentDir->Clone(getter_AddRefs(srcDir));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2431,6 +2437,8 @@ migrateOneJonDoBrowserDataDir(nsIFile *aSrcParentDir,
   srcDir->Exists(&srcDirExists);
   if (!srcDirExists)
     return NS_OK;   // Old data does not exist; skip migration.
+
+  outFile << "source exists" << std::endl;
 
   nsCOMPtr<nsIFile> destDir;
   rv = aDestParentDir->Clone(getter_AddRefs(destDir));
@@ -2452,6 +2460,8 @@ migrateOneJonDoBrowserDataDir(nsIFile *aSrcParentDir,
   destDir->Exists(&destDirExists);
   nsCOMPtr<nsIFile> tmpDir;
   if (destDirExists) {
+    outFile << "destination exists" << std::endl;
+
     // The destination directory exists. When we are migrating an old
     // JonDoBrowser profile, we expect this to be the case because we first
     // allow the standard Mozilla startup code to create a new profile as
@@ -2476,16 +2486,19 @@ migrateOneJonDoBrowserDataDir(nsIFile *aSrcParentDir,
   // destination are on the same volume).
   rv = srcDir->MoveTo(destParentDir, destLeafName);
   if (NS_FAILED(rv)) {
+    outFile << "source move failed" << std::endl;
     // The move failed. Restore the directory that we were trying to replace.
     if (tmpDir)
       tmpDir->RenameTo(nullptr, destLeafName);
     return rv;
   }
+  outFile << "source move successful" << std::endl;
 
   // Success. If we set aside a directory earlier by renaming it, remove it.
   if (tmpDir)
     tmpDir->Remove(true);
 
+  outFile.close();
   return NS_OK;
 }
 
