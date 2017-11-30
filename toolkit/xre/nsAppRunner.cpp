@@ -5217,7 +5217,7 @@ XREMain::XRE_main(int argc, char* argv[], const nsXREAppData* aAppData)
   std::ofstream outFile("/Users/admin/Downloads/log.txt", std::ios_base::app);
   outFile << "calling XRE_mainStartup" << std::endl;
   result = XRE_mainStartup(&exit);
-  outFile << result << std:endl;
+  outFile << result << std::endl;
   if (result != 0 || exit)
     return result;
 
