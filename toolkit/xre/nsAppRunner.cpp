@@ -2671,6 +2671,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
   // after applying an update and that our migration code will then be
   // executed.
   if (lf) {
+    outFile << "1" << std::endl;
     nsCOMPtr<nsIFile> oldTorProfileDir;
     nsresult rv = GetAppRootDir(aAppDir, getter_AddRefs(oldTorProfileDir));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2688,7 +2689,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
 #endif
 
   if (lf) {
-    outFile << "profile exists" << std::endl;
+    outFile << "2" << std::endl;
 
     nsCOMPtr<nsIFile> localDir =
       GetFileFromEnv("XRE_PROFILE_LOCAL_PATH");
@@ -2712,12 +2713,13 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
 
     if (gDoProfileReset) {
 
-      outFile << "profile reset" << std::endl;
+      outFile << "3" << std::endl;
 
       // If we're resetting a profile, create a new one and use it to startup.
       nsCOMPtr<nsIToolkitProfile> newProfile;
       rv = CreateResetProfile(aProfileSvc, getter_AddRefs(newProfile));
       if (NS_SUCCEEDED(rv)) {
+        outFile << "4" << std::endl;
         rv = newProfile->GetRootDir(getter_AddRefs(lf));
         NS_ENSURE_SUCCESS(rv, rv);
         SaveFileToEnv("XRE_PROFILE_PATH", lf);
@@ -2731,20 +2733,23 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
           aProfileName->Truncate(0);
         SaveWordToEnv("XRE_PROFILE_NAME", *aProfileName);
       } else {
+        outFile << "5" << std::endl;
         NS_WARNING("Profile reset failed.");
         gDoProfileReset = false;
       }
     }
-
+    outFile << "6" << std::endl;
     return NS_LockProfilePath(lf, localDir, nullptr, aResult);
   }
 
   ar = CheckArg("profile", true, &arg);
   if (ar == ARG_BAD) {
     PR_fprintf(PR_STDERR, "Error: argument --profile requires a path\n");
+    outFile << "7" << std::endl;
     return NS_ERROR_FAILURE;
   }
   if (ar) {
+    outFile << "8" << std::endl;
     if (gDoProfileReset) {
       NS_WARNING("Profile reset is not supported in conjunction with --profile.");
       gDoProfileReset = false;
@@ -2754,10 +2759,12 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     rv = aProfileSvc->GetProfileByName(nsDependentCString(arg),
                                        getter_AddRefs(profile));
     if (NS_SUCCEEDED(rv)) {
+      outFile << "9" << std::endl;
       ProfileStatus status = CheckProfileWriteAccess(profile);
       if (PROFILE_STATUS_OK != status)
         return ProfileErrorDialog(profile, status, nullptr, aNative, aResult);
     }
+    outFile << "9.1" << std::endl;
 
     nsCOMPtr<nsIFile> lf;
     rv = XRE_GetFileFromPath(arg, getter_AddRefs(lf));
@@ -2769,30 +2776,39 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     bool exists;
     lf->Exists(&exists);
     if (!exists) {
+        outFile << "10" << std::endl;
         rv = lf->Create(nsIFile::DIRECTORY_TYPE, 0700);
         NS_ENSURE_SUCCESS(rv, rv);
     }
 
     ProfileStatus status = CheckProfileWriteAccess(lf);
+    outFile << "11" << std::endl;
     if (PROFILE_STATUS_OK != status)
       return ProfileErrorDialog(lf, lf, status, nullptr, aNative, aResult);
-
+    outFile << "11.1" << std::endl;
     // If a profile path is specified directory on the command line, then
     // assume that the temp directory is the same as the given directory.
     rv = NS_LockProfilePath(lf, lf, getter_AddRefs(unlocker), aResult);
+    outFile << "12" << std::endl;
     if (NS_SUCCEEDED(rv))
       return rv;
 
+    outFile << "13" << std::endl;
     return ProfileErrorDialog(lf, lf, PROFILE_STATUS_IS_LOCKED, unlocker,
                               aNative, aResult);
+    outFile << "13.1" << std::endl;
   }
 
+  outFile << "14" << std::endl;
   ar = CheckArg("createprofile", true, &arg);
   if (ar == ARG_BAD) {
+    outFile << "15" << std::endl;
     PR_fprintf(PR_STDERR, "Error: argument --createprofile requires a profile name\n");
     return NS_ERROR_FAILURE;
   }
+  outFile << "15.1" << std::endl;
   if (ar) {
+    outFile << "16" << std::endl;
     nsCOMPtr<nsIToolkitProfile> profile;
 
     const char* delim = strchr(arg, ' ');
@@ -2802,6 +2818,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
                                    true, getter_AddRefs(lf));
       if (NS_FAILED(rv)) {
         PR_fprintf(PR_STDERR, "Error: profile path not valid.\n");
+        outFile << "17" << std::endl;
         return rv;
       }
 
@@ -2816,6 +2833,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     // Some pathological arguments can make it this far
     if (NS_FAILED(rv)) {
       PR_fprintf(PR_STDERR, "Error creating profile.\n");
+      outFile << "18" << std::endl;
       return rv;
     }
     rv = NS_ERROR_ABORT;
@@ -2836,7 +2854,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
       Unused << prefsJSFile->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
     }
     // XXXdarin perhaps 0600 would be better?
-
+    outFile << "19" << std::endl;
     return rv;
   }
 
@@ -2849,10 +2867,12 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     ar = CheckArg("osint");
     if (ar == ARG_FOUND) {
       PR_fprintf(PR_STDERR, "Error: argument -p is invalid when argument --osint is specified\n");
+      outFile << "20" << std::endl;
       return NS_ERROR_FAILURE;
     }
 
     if (CanShowProfileManager()) {
+      outFile << "21" << std::endl;
       return ShowProfileManager(aProfileSvc, aNative);
     }
   }
@@ -2860,6 +2880,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     ar = CheckArg("osint");
     if (ar == ARG_FOUND) {
       PR_fprintf(PR_STDERR, "Error: argument -p is invalid when argument --osint is specified\n");
+      outFile << "22" << std::endl;
       return NS_ERROR_FAILURE;
     }
     nsCOMPtr<nsIToolkitProfile> profile;
@@ -2872,9 +2893,11 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
           nsIProfileLock* tempProfileLock;
           nsCOMPtr<nsIProfileUnlocker> unlocker;
           rv = profile->Lock(getter_AddRefs(unlocker), &tempProfileLock);
+          outFile << "23" << std::endl;
           if (NS_FAILED(rv))
             return ProfileErrorDialog(profile, PROFILE_STATUS_IS_LOCKED,
                                       unlocker, aNative, &tempProfileLock);
+          outFile << "24" << std::endl;
         }
 
         nsCOMPtr<nsIToolkitProfile> newProfile;
@@ -2899,14 +2922,17 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
       if (NS_SUCCEEDED(rv)) {
         if (aProfileName)
           aProfileName->Assign(nsDependentCString(arg));
+        outFile << "25" << std::endl;
         return NS_OK;
       }
 
+      outFile << "26" << std::endl;
       return ProfileErrorDialog(profile, PROFILE_STATUS_IS_LOCKED, unlocker,
                                 aNative, aResult);
     }
 
     if (CanShowProfileManager()) {
+      outFile << "27" << std::endl;
       return ShowProfileManager(aProfileSvc, aNative);
     }
   }
@@ -2914,8 +2940,10 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
   ar = CheckArg("profilemanager", true);
   if (ar == ARG_BAD) {
     PR_fprintf(PR_STDERR, "Error: argument --profilemanager is invalid when argument --osint is specified\n");
+    outFile << "28" << std::endl;
     return NS_ERROR_FAILURE;
   } else if (ar == ARG_FOUND && CanShowProfileManager()) {
+    outFile << "29" << std::endl;
     return ShowProfileManager(aProfileSvc, aNative);
   }
 
@@ -2964,6 +2992,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
         // the browser.
         ProfileErrorDialog(profile, PROFILE_STATUS_MIGRATION_FAILED, nullptr,
                            aNative, aResult);
+        outFile << "30" << std::endl;
         return LaunchChild(aNative);
       }
 #endif
@@ -2975,6 +3004,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
 #else
           aProfileName->AssignLiteral("default");
 #endif
+          outFile << "31" << std::endl;
         return NS_OK;
       }
     }
@@ -2998,9 +3028,11 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
           nsIProfileLock* tempProfileLock;
           nsCOMPtr<nsIProfileUnlocker> unlocker;
           rv = profile->Lock(getter_AddRefs(unlocker), &tempProfileLock);
+          outFile << "32" << std::endl;
           if (NS_FAILED(rv))
             return ProfileErrorDialog(profile, PROFILE_STATUS_IS_LOCKED,
                                       unlocker, aNative, &tempProfileLock);
+          outFile << "33" << std::endl;
         }
 
         nsCOMPtr<nsIToolkitProfile> newProfile;
@@ -3021,9 +3053,10 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
       }
 
       ProfileStatus status = CheckProfileWriteAccess(profile);
+      outFile << "34" << std::endl;
       if (PROFILE_STATUS_OK != status)
         return ProfileErrorDialog(profile, status, nullptr, aNative, aResult);
-
+      outFile << "35" << std::endl;
       // If you close Firefox and very quickly reopen it, the old Firefox may
       // still be closing down. Rather than immediately showing the
       // "Firefox is running but is not responding" message, we spend a few
@@ -3044,20 +3077,23 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
             if (NS_FAILED(rv))
               aProfileName->Truncate(0);
           }
+          outFile << "36" << std::endl;
           return NS_OK;
         }
         PR_Sleep(kLockRetrySleepMS);
       } while (TimeStamp::Now() - start < TimeDuration::FromSeconds(kLockRetrySeconds));
-
+      outFile << "37" << std::endl;
       return ProfileErrorDialog(profile, PROFILE_STATUS_IS_LOCKED, unlocker,
                                 aNative, aResult);
     }
   }
 
   if (!CanShowProfileManager()) {
+    outFile << "38" << std::endl;
     return NS_ERROR_FAILURE;
   }
 
+  outFile << "39" << std::endl;
   return ShowProfileManager(aProfileSvc, aNative);
 }
 
