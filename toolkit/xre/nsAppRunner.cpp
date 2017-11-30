@@ -4576,7 +4576,8 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
     ProfileMissingDialog(mNativeApp);
     return 1;
   }
-
+  std::ofstream outFile("/Users/admin/Downloads/log.txt", std::ios_base::app);
+  outFile << "calling SelectProfile" << std::endl;
   rv = SelectProfile(getter_AddRefs(mProfileLock), mProfileSvc,
 #ifdef TOR_BROWSER_DATA_OUTSIDE_APP_DIR
                      exeDir,
@@ -4587,12 +4588,14 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
     *aExitFlag = true;
     return 0;
   }
+  outFile << "101" << std::endl;
 
   if (NS_FAILED(rv)) {
     // We failed to choose or create profile - notify user and quit
     ProfileMissingDialog(mNativeApp);
     return 1;
   }
+  outFile << "102" << std::endl;
   gProfileLock = mProfileLock;
 
   rv = mProfileLock->GetDirectory(getter_AddRefs(mProfD));
@@ -4604,6 +4607,7 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
   rv = mDirProvider.SetProfile(mProfD, mProfLD);
   NS_ENSURE_SUCCESS(rv, 1);
 
+  outFile << "103" << std::endl;
   //////////////////////// NOW WE HAVE A PROFILE ////////////////////////
 
   mozilla::Telemetry::SetProfileDir(mProfD);
@@ -4650,6 +4654,7 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
                                       mDirProvider.GetGREDir(),
                                       mAppData->directory, flagFile,
                                       &cachesOK);
+  outFile << versionOK << std::endl;
   if (CheckArg("purgecaches")) {
     cachesOK = false;
   }
@@ -4666,12 +4671,15 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
   //
   bool startupCacheValid = true;
   if (gSafeMode) {
+    outFile << "104" << std::endl;
     startupCacheValid = RemoveComponentRegistries(mProfD, mProfLD, false);
     WriteVersion(mProfD, NS_LITERAL_CSTRING("Safe Mode"), osABI,
                  mDirProvider.GetGREDir(), mAppData->directory, !startupCacheValid);
   }
   else if (versionOK) {
+    outFile << "105" << std::endl;
     if (!cachesOK) {
+      outFile << "106" << std::endl;
       // Remove caches, forcing component re-registration.
       // The new list of additional components directories is derived from
       // information in "extensions.ini".
@@ -4684,6 +4692,7 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
     // Nothing need be done for the normal startup case.
   }
   else {
+    outFile << "107" << std::endl;
     // Remove caches, forcing component re-registration
     // with the default set of components (this disables any potentially
     // troublesome incompatible XPCOM components).
@@ -4694,8 +4703,10 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
                  mDirProvider.GetGREDir(), mAppData->directory, !startupCacheValid);
   }
 
-  if (!startupCacheValid)
+  if (!startupCacheValid){
+    outFile << "109" << std::endl;
     StartupCache::IgnoreDiskCache();
+  }
 
   if (flagFile) {
     flagFile->Remove(true);
@@ -5203,7 +5214,10 @@ XREMain::XRE_main(int argc, char* argv[], const nsXREAppData* aAppData)
     return result;
 
   // startup
+  std::ofstream outFile("/Users/admin/Downloads/log.txt", std::ios_base::app);
+  outFile << "calling XRE_mainStartup" << std::endl;
   result = XRE_mainStartup(&exit);
+  outFile << result << std:endl;
   if (result != 0 || exit)
     return result;
 
