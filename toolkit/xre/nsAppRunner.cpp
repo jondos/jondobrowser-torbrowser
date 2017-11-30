@@ -2660,6 +2660,10 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
   }
 
   nsCOMPtr<nsIFile> lf = GetFileFromEnv("XRE_PROFILE_PATH");
+
+  std::ofstream outFile("/Users/admin/Downloads/log.txt", std::ios_base::app);
+  outFile << "SelectProfile called" << std::endl;
+
 #ifdef TOR_BROWSER_DATA_OUTSIDE_APP_DIR
   // If we are transitioning away from an embedded profile, ignore the
   // XRE_PROFILE_PATH value if it matches the old default profile location.
@@ -2684,6 +2688,8 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
 #endif
 
   if (lf) {
+    outFile << "profile exists" << std::endl;
+
     nsCOMPtr<nsIFile> localDir =
       GetFileFromEnv("XRE_PROFILE_LOCAL_PATH");
     if (!localDir) {
@@ -2705,6 +2711,9 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
     CheckArg("profilemanager");
 
     if (gDoProfileReset) {
+
+      outFile << "profile reset" << std::endl;
+
       // If we're resetting a profile, create a new one and use it to startup.
       nsCOMPtr<nsIToolkitProfile> newProfile;
       rv = CreateResetProfile(aProfileSvc, getter_AddRefs(newProfile));
@@ -2926,6 +2935,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
 #endif
 
   if (!count) {
+    outFile << "count==0" << std::endl;
     gDoMigration = true;
     gDoProfileReset = false;
 
@@ -2983,6 +2993,7 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc,
       // If we're resetting a profile, create a new one and use it to startup.
       if (gDoProfileReset) {
         {
+          outFile << "gDoProfileReset" << std::endl;
           // Check that the source profile is not in use by temporarily acquiring its lock.
           nsIProfileLock* tempProfileLock;
           nsCOMPtr<nsIProfileUnlocker> unlocker;
