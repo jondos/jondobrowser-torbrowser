@@ -46,7 +46,6 @@ pref("browser.disableResetPrompt", true);
 pref("browser.privatebrowsing.autostart", true);
 pref("browser.cache.disk.enable", false);
 pref("browser.cache.offline.enable", false);
-pref("dom.indexedDB.enabled", false);
 pref("permissions.memory_only", true);
 pref("network.cookie.lifetimePolicy", 2);
 pref("browser.download.manager.retention", 1);
@@ -180,13 +179,13 @@ pref("dom.maxHardwareConcurrency", 1); // Bug 21675: Spoof single-core cpu
 pref("dom.w3c_touch_events.enabled", 0); // Bug 10286: Always disable Touch API
 
 // Third party stuff
+pref("privacy.firstparty.isolate", true); // Always enforce first party isolation
 pref("network.cookie.cookieBehavior", 1);
 pref("security.enable_tls_session_tickets", false);
 pref("network.http.spdy.enabled", false); // Stores state and may have keepalive issues (both fixable)
 pref("network.http.spdy.enabled.v2", false); // Seems redundant, but just in case
 pref("network.http.spdy.enabled.v3", false); // Seems redundant, but just in case
 pref("network.http.spdy.enabled.v3-1", false); // Seems redundant, but just in case
-pref("privacy.firstparty.isolate", true); // Always enforce first party isolation
 pref("network.http.spdy.enabled.http2", false); // Temporarily disabled pending implementation review
 pref("network.http.spdy.enabled.http2draft", false); // Temporarily disabled pending implementation review
 pref("network.predictor.enabled", false); // Temporarily disabled. See https://bugs.torproject.org/16633
